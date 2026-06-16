@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Тест Сонди онлайн — Валерия Майкина</title>
-  <meta name="description" content="Тест Сонди онлайн: бесплатное прохождение, графики профилей, PDF и AI-интерпретация актуального состояния с возможностью профессионального разбора у Валерии Майкиной." />
+  <meta name="description" content="Тест Сонди онлайн: быстрый выбор портретов, графики профилей, PDF и запись на консультацию к Валерии Майкиной." />
   <meta name="theme-color" content="#12100e" />
 
   <!-- PDF: если CDN недоступен, кнопка PDF переключится на обычную печать страницы. -->
@@ -197,6 +197,8 @@
     }
 
     .feature strong { color: var(--text); display: block; margin-bottom: 6px; }
+    .single-feature { grid-template-columns: 1fr; }
+    .feature-one-line { min-height: auto; font-weight: 820; font-size: 18px; color: var(--text); }
 
     .hero-side { padding: 26px; display: grid; gap: 18px; }
     .tarot-card {
@@ -373,15 +375,17 @@
     }
 
     .portrait-grid.final-round .portrait-card {
-      min-height: 0;
-      aspect-ratio: 3 / 4;
+      height: 260px;
+      min-height: 260px;
     }
 
     .portrait-card {
+      width: 100%;
+      height: 260px;
       min-height: 260px;
       border: 1px solid rgba(255,255,255,.14);
       border-radius: 24px;
-      background: rgba(255,255,255,.08);
+      background-color: rgba(255,255,255,.08);
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -392,18 +396,12 @@
       padding: 0;
       color: var(--text);
       display: block;
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
-    }
-
-    .portrait-card::before {
-      content: "";
-      display: block;
-      padding-top: 133.333%;
+      -webkit-appearance: none;
+      appearance: none;
     }
 
     .portrait-card:hover { transform: translateY(-2px); border-color: rgba(214,173,102,.5); box-shadow: 0 18px 46px rgba(0,0,0,.28); }
-    .portrait-card img { width: 100%; height: 100%; object-fit: cover; display: block; position: absolute; inset: 0; z-index: 1; }
+    .portrait-card img { width: 100%; height: 100%; object-fit: cover; display: block; position: relative; z-index: 1; transform: translateZ(0); -webkit-transform: translateZ(0); }
     .portrait-card .portrait-fallback {
       position: absolute;
       inset: 0;
@@ -414,7 +412,6 @@
       text-align: center;
       background: rgba(255,255,255,.06);
       font-size: 13px;
-      z-index: 1;
     }
     .portrait-card .portrait-num {
       position: absolute;
@@ -681,7 +678,7 @@
       .hero-main { min-height: auto; }
       .test-layout { grid-template-columns: 1fr; }
       .sticky { position: static; }
-      .portrait-card { min-height: 210px; }
+      .portrait-card { height: 210px; min-height: 210px; }
       .mini-cards { grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
 
@@ -692,11 +689,11 @@
       .hero-main, .hero-side, .panel, .portrait-stage { padding: 16px; border-radius: 22px; }
       .feature-grid, .input-row, .mini-cards { grid-template-columns: 1fr; }
       .portrait-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; }
-      .portrait-card { min-height: 0; aspect-ratio: 3 / 4; border-radius: 14px; }
+      .portrait-card { height: clamp(92px, 31vw, 150px); min-height: 92px; aspect-ratio: auto; border-radius: 14px; }
       .portrait-card .selection-mark { inset: auto 5px 5px 5px; padding: 6px; border-radius: 10px; font-size: 10px; }
       .portrait-card .portrait-fallback { font-size: 10px; padding: 6px; }
       .portrait-grid.final-round { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; }
-      .portrait-grid.final-round .portrait-card { min-height: 0; aspect-ratio: 3 / 4; border-radius: 14px; }
+      .portrait-grid.final-round .portrait-card { height: clamp(92px, 31vw, 150px); min-height: 92px; aspect-ratio: auto; border-radius: 14px; }
       .portrait-grid.final-round .selection-mark { inset: auto 5px 5px 5px; padding: 6px; border-radius: 10px; font-size: 10px; }
       .instruction-card { display: grid; }
       .results-head, .result-cta { grid-template-columns: 1fr; }
@@ -722,7 +719,7 @@
 
     @media (max-width: 380px) {
       .portrait-grid { gap: 5px; }
-      .portrait-card { border-radius: 12px; }
+      .portrait-card { height: clamp(84px, 31vw, 130px); min-height: 84px; border-radius: 12px; }
       .chart-grid { --chart-row: 22px; }
       .chart-cell { font-size: 12px; }
       .vector-header .vector-cell { font-size: 13px; }
@@ -754,7 +751,7 @@
         <div class="brand-mark">ВМ</div>
         <div>
           <div class="brand-title">Валерия Майкина</div>
-          <div class="brand-subtitle">психолог • психоаналитический подход</div>
+          <div class="brand-subtitle">психолог психоаналитической направленности • судьбоаналитик</div>
         </div>
       </a>
       <div class="top-actions">
@@ -768,17 +765,14 @@
         <div class="hero">
           <section class="glass hero-main">
             <div class="eyebrow">✨ Тест Сонди онлайн</div>
-            <h1>Получите интерпретацию вашего состояния здесь и сейчас</h1>
-            <p class="lead">Тест Сонди помогает увидеть скрытые причины повторяющихся неудач в отношениях, работе, выборе и телесном напряжении — не поверхностный симптом, а внутренний конфликт, который им управляет.</p>
+            <h1>Получите интерпретацию вашего состояния и найдите истинные причины ваших проблем здесь и сейчас.</h1>
+            <p class="lead"><strong>Что это такое?</strong> Тест Сонди предсказывает судьбу! Может рассказать что было, что есть и что будет. Это точный судьбоаналитический инструмент диагностики для выявления истинных причин Ваших проблем в отношениях, на работе, проблем со здоровьем с которыми Вы много лет ходите по разным психологам.</p>
 
-            <div class="feature-grid">
-              <div class="feature">Тест Сонди помогает психоаналитику работать не с поверхностной жалобой, а с глубинной причиной повторяющегося сценария.</div>
-              <div class="feature">Методика показывает, где психика удерживает привязанность, агрессию, вину, контроль и потребность в новом объекте.</div>
-              <div class="feature">Вместо бесконечных разговоров вокруг одной и той же проблемы результат сразу выводит внимание к ядру внутреннего конфликта.</div>
-              <div class="feature">Если вам нужна работа с тем, что вы получили, вы можете обратиться за квалифицированной помощью к Валерии Майкиной.</div>
+            <div class="feature-grid single-feature">
+              <div class="feature feature-one-line">Тестирование займет 5 минут.</div>
             </div>
 
-            <div class="tiny-note">Тест Сонди — психоаналитическая проективная методика Леопольда Сонди; результат не является медицинским диагнозом и лучше всего раскрывается в работе со специалистом.</div>
+            <div class="tiny-note">Тест Сонди — психоаналитическая проективная методика швейцарского врача, психиатра, судьбоаналитика Леопольда Зонди; результат считается точным только при работе со специалистом судьбоаналитиком.</div>
           </section>
 
           <aside class="glass hero-side">
@@ -861,12 +855,12 @@
         <div class="results-head no-print">
           <div>
             <h1>Результаты готовы</h1>
-            <p>Ниже — профиль, графики и предварительный психологический срез. Сохраните PDF, чтобы разобрать результат в контексте реальной ситуации, а не как набор букв; если вам нужна работа с полученным материалом, вы можете обратиться за квалифицированной помощью к Валерии Майкиной.</p>
+            <p>Ниже — профиль, графики и предварительный психологический срез. Скачайте PDF и получите профессиональную расшифровку результата у Валерии Майкиной: профиль будет разобран через вашу реальную ситуацию, повторяющиеся сценарии, напряжения и точки выбора.</p>
           </div>
           <div class="btn-row">
             <button class="btn btn-teal" id="interpretationButton" type="button">Получить глубокий разбор</button>
             <button class="btn btn-primary" id="pdfButton" type="button">Скачать PDF</button>
-            <a class="btn btn-consult" id="telegramButton" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться на консультацию</a>
+            <a class="btn btn-consult" id="telegramButton" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Разобрать с Валерией</a>
           </div>
         </div>
 
@@ -895,12 +889,12 @@
             <section class="result-block result-cta no-print no-pdf">
               <div>
                 <div class="cta-kicker">Личная расшифровка</div>
-                <h2>Нужна профессиональная работа с результатом?</h2>
-                <p>Сохраните PDF и обратитесь к Валерии Майкиной за квалифицированной помощью: профиль будет разобран через ваш запрос, реальные события, отношения, работу и повторяющиеся реакции, чтобы из интерпретации получился понятный план дальнейшей работы.</p>
+                <h2>Хотите понять, что стоит за вашим результатом?</h2>
+                <p>Скачайте PDF и обратитесь за квалифицированной помощью к Валерии Майкиной, если вам нужна профессиональная работа с тем, что показал результат. На консультации профиль разбирается через вашу реальную историю, отношения, повторяющиеся конфликты, телесное напряжение и точки выбора.</p>
               </div>
               <div class="btn-row result-cta-buttons">
                 <button class="btn btn-primary" id="bottomPdfButton" type="button">Скачать PDF</button>
-                <a class="btn btn-consult" id="bottomTelegramButton" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Получить квалифицированную помощь</a>
+                <a class="btn btn-consult" id="bottomTelegramButton" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться к Валерии Майкиной</a>
               </div>
             </section>
           </div>
@@ -929,11 +923,12 @@
       interpretationApiUrl: "https://functions.yandexcloud.net/d4eknbeun02tsl1libe5",
       portraitRoot: "szondi",
       portraitExt: "webp",
-      pdfPrefix: "maykina-szondi-result",
-      showPortraitNumbers: false,
-      // Будущий платный режим. В статическом HTML это только витрина; для настоящей оплаты нужна серверная проверка доступа.
+      portraitExts: ["webp", "WEBP", "jpg", "jpeg", "png"],
+      assetsVersion: "2026-06-16-iphone-image-fix-3",
       paidMode: false,
       paymentUrl: "",
+      pdfPrefix: "maykina-szondi-result",
+      showPortraitNumbers: false,
       // Если в вашем комплекте порядок факторов другой, поменяйте этот массив.
       // По умолчанию: 1=h, 2=s, 3=e, 4=hy, 5=k, 6=p, 7=d, 8=m; затем повтор по сериям.
       factorOrderByPosition: ["h", "s", "e", "hy", "k", "p", "d", "m"]
@@ -957,15 +952,6 @@
       d: { title: "d — поиск нового объекта", plus: "ищет новое, сравнивает, пробует смену опоры", minus: "держится за старое, переживает потерю и возвращает внимание к прежней связи" },
       m: { title: "m — цепляние и отпускание контакта", plus: "цепляется за контакт, удовольствие, группу и эмоциональную подпитку", minus: "отходит, закрывается, выбирает одиночество и самостоятельность" }
     };
-
-    const DEEPSEEK_SYSTEM_PROMPT = `
-Ты — профессиональный психоаналитический интерпретатор теста Сонди для сайта Валерии Майкиной.
-Пиши по-русски, взрослым, плотным, живым языком: конкретно, напряженно, без канцелярита, без эзотерики, без детских фраз и без рекламной слащавости.
-Задача — не пересказать энциклопедию факторов, а дать прикладную гипотезу о текущем конфликте клиента: что тянет, что отталкивает, где подавлена агрессия, где ищется новый объект, где человек подозревает вместо прямого предъявления.
-Обращайся к клиенту на «ты», как в живой психологической расшифровке, но не унижай и не оскорбляй.
-Не утверждай медицинский диагноз и не обещай стопроцентную безошибочность; формулируй как психологическую интерпретацию и рабочую гипотезу для специалиста.
-Стиль: жесткая, точная психоаналитическая расшифровка — без воды, но с сильными выводами, причинно-следственными связками и влиянием на жизнь.
-`;
 
     const PHASES = [
       {
@@ -1038,11 +1024,6 @@
 
     function onStart(event) {
       event.preventDefault();
-      if (CONFIG.paidMode) {
-        if (CONFIG.paymentUrl) window.open(CONFIG.paymentUrl, "_blank", "noopener");
-        showToast("Сейчас прохождение теста закрыто. Оформите доступ, чтобы начать.");
-        return;
-      }
       state.client = readClientForm();
       state.startedAt = new Date().toISOString();
       state.stepIndex = 0;
@@ -1094,9 +1075,44 @@
     }
 
     function portraitPath(seriesIndex, positionIndex) {
+      return portraitCandidates(seriesIndex, positionIndex)[0];
+    }
+
+    function portraitCandidates(seriesIndex, positionIndex) {
       const folder = seriesIndex + 1;
       const num = portraitNumber(seriesIndex, positionIndex);
-      return `${CONFIG.portraitRoot}/${folder}/${num}.${CONFIG.portraitExt}`;
+      const cleanRoot = String(CONFIG.portraitRoot || "szondi").replace(/^\.\//, "").replace(/^\/+/, "").replace(/\/+$/, "");
+      const roots = Array.from(new Set([`./${cleanRoot}`, cleanRoot, `/${cleanRoot}`]));
+      const exts = Array.from(new Set([CONFIG.portraitExt, ...(CONFIG.portraitExts || [])].filter(Boolean)));
+      return roots.flatMap((root) => exts.map((ext) => `${root}/${folder}/${num}.${ext}`));
+    }
+
+    function withAssetVersion(path) {
+      const sep = String(path).includes("?") ? "&" : "?";
+      return `${path}${sep}v=${encodeURIComponent(CONFIG.assetsVersion || "1")}`;
+    }
+
+    function cssUrl(value) {
+      return String(value).replace(/\"/g, '\\"');
+    }
+
+    function setPortraitImageCandidate(card, img, fallback, candidates, index) {
+      const candidate = candidates[index];
+      if (!candidate) return false;
+      const versioned = withAssetVersion(candidate);
+      card.style.backgroundImage = `url("${cssUrl(versioned)}")`;
+      card.dataset.activePath = candidate;
+      img.dataset.candidateIndex = String(index);
+      img.style.display = "block";
+      fallback.style.display = "none";
+      img.src = versioned;
+      return true;
+    }
+
+    function reportImageProblem(firstPath) {
+      const hint = $("imagePathHint");
+      if (!hint) return;
+      hint.textContent = `Если портреты не появились: проверьте на GitHub, что папка szondi лежит рядом с index.html, а файл ${firstPath.replace(/^\.\//, "")} существует именно с таким именем.`;
     }
 
     function renderTest() {
@@ -1133,14 +1149,46 @@
         if (hidden.has(id)) button.classList.add("placeholder");
         if (selected.has(id)) button.classList.add(phase.polarity === "plus" ? "selected-like" : "selected-dislike");
 
-        const path = portraitPath(seriesIndex, i);
-        button.style.backgroundImage = `linear-gradient(rgba(0,0,0,.02), rgba(0,0,0,.02)), url("${path}")`;
-        button.innerHTML = `
-          <img src="${path}" alt="Портрет" loading="eager" decoding="async" fetchpriority="high" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';" />
-          <span class="portrait-fallback" style="display:none">Не найден файл:<br>${path}</span>
-          ${CONFIG.showPortraitNumbers ? `<span class="portrait-num">${id}</span>` : ""}
-          <span class="selection-mark">Выбрано</span>
-        `;
+        const candidates = portraitCandidates(seriesIndex, i);
+        const img = document.createElement("img");
+        img.alt = "Портрет";
+        img.loading = "eager";
+        img.decoding = "async";
+        img.fetchPriority = "high";
+
+        const fallback = document.createElement("span");
+        fallback.className = "portrait-fallback";
+        fallback.style.display = "none";
+        fallback.innerHTML = `Не найден файл:<br>${escapeHtml(candidates[0])}<br><small>Проверьте папку szondi на GitHub.</small>`;
+
+        img.addEventListener("error", () => {
+          const nextIndex = Number(img.dataset.candidateIndex || "0") + 1;
+          if (setPortraitImageCandidate(button, img, fallback, candidates, nextIndex)) return;
+          img.style.display = "none";
+          fallback.style.display = "grid";
+          reportImageProblem(candidates[0]);
+        });
+        img.addEventListener("load", () => {
+          img.style.display = "block";
+          fallback.style.display = "none";
+        });
+
+        button.appendChild(img);
+        button.appendChild(fallback);
+
+        if (CONFIG.showPortraitNumbers) {
+          const num = document.createElement("span");
+          num.className = "portrait-num";
+          num.textContent = String(id);
+          button.appendChild(num);
+        }
+
+        const mark = document.createElement("span");
+        mark.className = "selection-mark";
+        mark.textContent = "Выбрано";
+        button.appendChild(mark);
+
+        setPortraitImageCandidate(button, img, fallback, candidates, 0);
         button.addEventListener("click", () => onPortraitClick(id));
         grid.appendChild(button);
       }
@@ -1373,7 +1421,7 @@
         ["Клиент", clientLine],
         ["Динамика", dynamicLine],
         ["Материал", "ниже — таблица знаков и три графика для расшифровки"],
-        ["Следующий шаг", "сохранить PDF и обратиться за квалифицированной расшифровкой"]
+        ["Следующий шаг", "сохранить PDF и разобрать профиль с Валерией Майкиной"]
       ];
       $("summaryCards").innerHTML = cards.map(([title, text]) => `<div class="mini-card"><strong>${escapeHtml(title)}</strong><span>${escapeHtml(text)}</span></div>`).join("");
     }
@@ -1468,157 +1516,35 @@
 
     function renderLocalAnalysis() {
       const r = state.results;
-      const client = clientLineForAnalysis(r);
-      const context = r.client.context ? `Запрос: ${r.client.context}` : "Запрос не указан, поэтому профиль читается как актуальный срез состояния здесь и сейчас";
+      const client = [
+        r.client.name ? escapeHtml(r.client.name) : "Клиент",
+        r.client.age ? `${escapeHtml(r.client.age)} лет` : "",
+        r.client.status ? escapeHtml(r.client.status).toLowerCase() : ""
+      ].filter(Boolean).join(", ");
       const dynamicLine = dynamicWinnerText(r.dynamics);
       const hotFront = hotFactors(r.ppp);
       const hotShadow = hotFactors(r.tkp);
       const hotEkp = hotFactors(r.ekp);
+      const vectors = VECTORS.map((v) => `<p><strong>${v.code}.</strong> ${escapeHtml(vectorText(v, r.ppp))}</p>`).join("");
 
       $("localAnalysis").innerHTML = `
         <h2>Предварительная интерпретация</h2>
         <h3>Контекст</h3>
-        <p>${escapeHtml(client)}. ${escapeHtml(context)}. Это не медицинский диагноз, а психологическая гипотеза о том, где сейчас лежит основное напряжение: в контакте, агрессии, чувстве вины, контроле, подозрении или поиске нового объекта.</p>
+        <p>${client || "Клиент"}. Результат лучше читать как актуальный психологический срез: не диагноз и не приговор, а карту напряжений, притяжений и защит, которые сейчас сильнее всего влияют на внутреннее состояние, выборы и отношения.</p>
 
         <h3>Заключение</h3>
-        <p>Передний профиль сильнее всего нагружен по линиям ${escapeHtml(hotFront)}. Это не просто набор букв: так выглядит способ, которым психика сейчас удерживает лицо, близость, злость и право на перемену.</p>
-        <p>${escapeHtml(dynamicLine)}. Во втором слое дополнительно проявляются ${escapeHtml(hotEkp)}, а комплементарная зона держит ${escapeHtml(hotShadow)}. Поэтому результат надо читать не как «характер», а как движение конфликта: что уже прорвалось наружу, что еще сдерживается и чем человек за это платит.</p>
+        <p>В переднем профиле заметнее всего звучат ${escapeHtml(hotFront)}. Это поверхностный слой реакции: то, как психика сейчас держится, приближается, защищается, контролирует или отталкивает.</p>
+        <p>${escapeHtml(dynamicLine)}. Во втором слое дополнительно подсвечиваются ${escapeHtml(hotEkp)}, а в комплементарной зоне — ${escapeHtml(hotShadow)}. Поэтому результат стоит читать не по отдельным буквам, а по движению: где человек удерживает привычное, а где уже созревает другая реакция.</p>
 
-        <h3>Краевой разбор</h3>
-        <p><strong>h вместе с m.</strong> ${escapeHtml(pairInterpretation(r.ppp, "h", "m"))}</p>
-        <p><strong>s вместе с d.</strong> ${escapeHtml(pairInterpretation(r.ppp, "s", "d"))}</p>
-
-        <h3>Срединный разбор</h3>
-        <p><strong>P: e вместе с hy.</strong> ${escapeHtml(pairInterpretation(r.ppp, "e", "hy"))}</p>
-        <p><strong>Sch: k вместе с p.</strong> ${escapeHtml(pairInterpretation(r.ppp, "k", "p"))}</p>
+        <h3>Векторный разбор</h3>
+        ${vectors}
 
         <h3>Комплементарный анализ</h3>
-        <p>ППП показывает видимую линию поведения, ТКП — обратную сторону этой линии, а ЭКП — то, что уже начинает просачиваться в поступки. Если ЭКП совпадает с ТКП, теневая тема перестает быть просто внутренней фантазией и начинает влиять на реальную дистанцию, ссоры, холод, выборы и подозрения.</p>
-        <p>${escapeHtml(experimentalSummary(r))}</p>
+        <p>Передний профиль показывает видимый способ справляться. Задний профиль подсвечивает обратную сторону этого способа: то, что не всегда удобно признать прямо, но что может выходить через усталость, контроль, обиду, холод, вспышку или желание перемен. Экспериментальный профиль показывает, какая скрытая линия уже ближе к реальному поведению.</p>
 
         <h3>Вывод</h3>
-        <p>Главная ценность результата — не в красивой таблице, а в том, что он показывает цену текущей защиты. Где есть прямой запрос, но нет прямого предъявления, там появляются контроль, обида, пассивная месть, усталость или тяга к новому объекту. В профессиональной работе этот профиль стоит сверять с конкретными ситуациями: отношениями, работой, телесными реакциями и повторяющимися конфликтами.</p>
+        <p>Главная ценность результата — увидеть повторяющийся сценарий: где вы тянетесь, но останавливаете себя; где отталкиваете, хотя внутри есть потребность; где держите лицо, но платите за это напряжением. На консультации этот профиль можно разобрать точнее — через реальные ситуации, отношения, выборы и телесные реакции.</p>
       `;
-    }
-
-    function clientLineForAnalysis(r) {
-      const client = [
-        r.client.name ? r.client.name : "Клиент",
-        r.client.age ? `${r.client.age} лет` : "",
-        r.client.gender || "",
-        r.client.status ? r.client.status.toLowerCase() : ""
-      ].filter(Boolean).join(", ");
-      return client || "Клиент";
-    }
-
-    function profileLine(profile) {
-      return FACTORS.map((f) => `${f}${profile.signs[f].symbol}`).join(" ");
-    }
-
-    function factorPhrase(factor, sign) {
-      const base = sign.base;
-      const strong = sign.strength > 0 ? " Перегрузка усиливает тему: она хуже держится в нейтральном виде и легче уходит в симптом, сцену или резкий поступок." : "";
-      const map = {
-        h: {
-          "+": "есть тяга к теплу, телесной и эмоциональной близости; хочется контакта, в котором тебя признают и выбирают",
-          "-": "прямая нежность зажата; легче держать дистанцию, обесценивать свою потребность или переводить нужду в контроль",
-          "±": "близость одновременно нужна и раздражает: тянет к теплу, но зависимость от него быстро становится невыносимой",
-          "0": "тема нежности не выглядит главным передним напряжением; это может быть спокойствие либо след недавней разрядки"
-        },
-        m: {
-          "+": "контакт хочется удерживать: важны отклик, признание, эмоциональная подпитка и ощущение, что связь живая",
-          "-": "контакт проще охладить или оборвать; появляется уход в самостоятельность, молчание, дистанцию и внутреннее «мне не надо»",
-          "±": "есть качка между цеплянием и уходом: сегодня контакт нужен, завтра он кажется слишком дорогим",
-          "0": "тема удержания контакта выражена слабо; связь может переживаться ровнее или уже быть частично разряженной"
-        },
-        s: {
-          "+": "агрессия и энергия идут в прямой напор: хочется действовать, требовать, брать свое и не уступать без борьбы",
-          "-": "удар сдерживается; злость уходит в терпение, уступку, пассивную месть, холод или телесное напряжение",
-          "±": "агрессия то прорывается, то резко запрещается; после вспышки легко включаются вина, контроль или откат назад",
-          "0": "прямой напор сейчас не главный; энергия может быть разряжена или переведена в другие факторы"
-        },
-        d: {
-          "+": "психика смотрит в сторону нового объекта, новой опоры, другого варианта или выхода из привычной сцепки",
-          "-": "старый объект удерживается сильнее: есть страх потерять, отпустить, признать истощение связи или завершить цикл",
-          "±": "идет расщепление между старым и новым: одно уже не насыщает, другое манит, но пугает последствиями",
-          "0": "поиск нового объекта не звучит резко; тема перемены может быть скрытой или пока не оформленной"
-        },
-        e: {
-          "+": "злость удерживается через мораль, вину и стремление быть хорошим; человек старается не разрушить связь прямым обвинением",
-          "-": "на поверхности гнев, чувство несправедливости, желание обвинить, наказать или доказать, что виноват другой",
-          "±": "гнев и вина идут вместе: хочется ударить, но почти сразу включается внутренний суд и страх последствий",
-          "0": "аффект справедливости и вины не выглядит главным передним узлом"
-        },
-        hy: {
-          "+": "есть потребность быть увиденным, признанным, услышанным; эмоция просится наружу и может выходить сценой",
-          "-": "самопредъявление зажато стыдом; проще спрятать реакцию, чем показать, насколько тебя задело",
-          "±": "хочется заявить о себе, но одновременно страшно выглядеть лишним, некрасивым или слишком резким",
-          "0": "тема демонстрации и стыда не занимает главный передний план"
-        },
-        k: {
-          "+": "Я собирается в жесткую форму: держать лицо, контролировать, не распасться, не показать слабость",
-          "-": "жесткая форма ослаблена; возможны уступка, приспособление, отказ от контроля или ощущение, что границы размываются",
-          "±": "контроль то усиливается, то проваливается; снаружи форма есть, но внутри она держится ценой напряжения",
-          "0": "контроль Я не выглядит главным активным узлом"
-        },
-        p: {
-          "+": "растет внутренняя правота, масштаб, уверенность в своем видении; в перегрузе это дает непоколебимую убежденность",
-          "-": "напряжение легче вынести наружу через подозрение, поиск виноватого и проверку другого на скрытый мотив",
-          "±": "есть качка между правотой и подозрением: хочется доверять себе, но реальность постоянно перепроверяется",
-          "0": "проекция и сверхценная правота не выглядят главным передним напряжением"
-        }
-      };
-      return (map[factor]?.[base] || "фактор требует уточнения в беседе") + strong;
-    }
-
-    function pairInterpretation(profile, first, second) {
-      const a = profile.signs[first];
-      const b = profile.signs[second];
-      const code = `${first}${a.symbol} и ${second}${b.symbol}`;
-      return `${code}. ${factorPhrase(first, a)}. ${factorPhrase(second, b)}. ${pairSynthesis(first, second, a, b)}`;
-    }
-
-    function pairSynthesis(first, second, a, b) {
-      const key = `${first}${second}`;
-      if (key === "hm") {
-        if (a.base === "+" && b.base === "+") return "В связке это дает перегруженную зону контакта: нужно и тепло, и подтверждение связи, поэтому любой холод читается не как мелочь, а как угроза привязанности.";
-        if (a.base === "+" && b.base === "-") return "В связке это дает тягу к близости без устойчивого выдерживания контакта: внутри есть нужда в тепле, но при зависимости включается отход, холод или проверка.";
-        if (a.base === "-" && b.base === "+") return "В связке это похоже на удержание контакта без прямого признания нежности: связь нужна, но сама потребность в тепле выглядит слишком уязвимой.";
-        if (a.base === "-" && b.base === "-") return "В связке это дает уход от живого контакта: дистанция становится способом не встречаться с собственной нуждой и не просить напрямую.";
-        return "В связке это дает качание контакта: близость одновременно притягивает и перегружает, поэтому отношения переживаются не ровно, а через приближение и отступление.";
-      }
-      if (key === "sd") {
-        if (a.base === "+" && b.base === "+") return "В связке это дает активный поиск разрядки и нового объекта: энергия не хочет терпеть, ей нужен ход, выход, действие или замена.";
-        if (a.base === "+" && b.base === "-") return "В связке это дает удержание старого объекта через силу: злость работает не на честное завершение, а на контроль, давление и борьбу за прежнюю сцепку.";
-        if (a.base === "-" && b.base === "+") return "В связке это дает скрытый поиск нового при запрете на прямой удар: внешне человек терпит, но внутри уже смотрит в сторону другого выхода.";
-        if (a.base === "-" && b.base === "-") return "В связке это дает тяжелое терпение: агрессия подавлена, старый объект удерживается, а цена выходит усталостью, холодом и пассивной местью.";
-        return "В связке это дает конфликт между удержанием и переменой: злость не идет прямой линией, поэтому вместо ясного решения появляется внутреннее расщепление.";
-      }
-      if (key === "ehy") {
-        if (a.base === "-" && b.base === "+") return "В отношениях или коллективе это похоже на открытую злость, которой нужно быть замеченной: человек не просто сердится, он хочет, чтобы другой увидел вес этой злости.";
-        if (a.base === "-" && b.base === "-") return "В отношениях или коллективе это похоже на злость, спрятанную под стыдом: прямой разговор заменяется уколами, холодом, внутренним обвинением и сбором доказательств.";
-        if (a.base === "+" && b.base === "+") return "В отношениях или коллективе это дает стремление быть хорошим и признанным: злость удерживается, но потребность в оценке и внимании остается высокой.";
-        if (a.base === "+" && b.base === "-") return "В отношениях или коллективе это дает вину без прямого предъявления: человек старается выглядеть правильным, но свою обиду прячет и потому копит напряжение.";
-        return "В отношениях или коллективе это надо читать через вопрос: где человек злится, где стыдится своей злости и каким способом пытается получить признание вместо прямого разговора.";
-      }
-      if (key === "kp") {
-        if (a.base === "+" && b.base === "-") return "В связке это дает внешнюю собранность при внутренней проверке реальности: человек держит форму, но напряжение переводит в подозрение и поиск виноватого.";
-        if (a.base === "+" && b.base === "+") return "В связке это дает жесткую правоту: контроль соединяется с уверенностью, и тогда реальность легко подгоняется под внутреннюю схему.";
-        if (a.base === "-" && b.base === "-") return "В связке это дает ослабление прямого контроля и рост настороженности: границы не предъявляются ясно, зато другой начинает казаться источником угрозы.";
-        if (a.base === "-" && b.base === "+") return "В связке это дает внутреннее расширение при слабой форме: много правоты и желания решать, но границы и ответственность могут держаться неровно.";
-        return "В связке это показывает, как человек удерживает Я: через форму, правоту, подозрение, уступку или постоянную проверку происходящего.";
-      }
-      return "Связка требует проверки через реальные ситуации клиента, потому что фактор важен не сам по себе, а в том, какую цену он создает в контакте, работе и теле.";
-    }
-
-    function experimentalSummary(r) {
-      const shadowRows = r.dynamics.rows.filter((row) => row.winner === "сближение с ТКП").map((row) => row.factor);
-      const independentRows = r.dynamics.rows.filter((row) => row.winner === "самостоятельная линия").map((row) => row.factor);
-      const parts = [];
-      if (shadowRows.length) parts.push(`Сближение ЭКП с ТКП по ${shadowRows.join(", ")} означает, что вытесненная или неудобная тема уже может выходить через поведение, а не только через внутреннее напряжение.`);
-      if (independentRows.length) parts.push(`Самостоятельная линия по ${independentRows.join(", ")} говорит о компенсации: психика ищет отдельный способ сбросить давление, не совпадающий с привычной маской.`);
-      if (!parts.length) parts.push("ЭКП в целом повторяет видимый профиль, поэтому основной конфликт пока больше держится в привычном способе поведения, чем в резкой смене линии.");
-      return parts.join(" ");
     }
 
     function hotFactors(profile) {
@@ -1695,7 +1621,7 @@
     async function requestDeepInterpretation() {
       if (!state.results) return;
       if (!CONFIG.interpretationApiUrl) {
-        showToast("Глубокий разбор пока не подключён. Сохраните PDF и обратитесь к Валерии Майкиной за квалифицированной расшифровкой.");
+        showToast("Глубокий разбор пока не подключён. Сохраните PDF и запишитесь к Валерии Майкиной.");
         return;
       }
 
@@ -1727,56 +1653,6 @@
       }
     }
 
-    function buildDeepSeekPrompt(r) {
-      const client = clientLineForAnalysis(r);
-      const context = r.client.context ? r.client.context : "контекст не указан";
-      const profileBlock = [
-        `ППП: ${profileLine(r.ppp)}`,
-        `ТКП: ${profileLine(r.tkp)}`,
-        `ЭКП: ${profileLine(r.ekp)}`,
-        `Динамика: ${dynamicWinnerText(r.dynamics)}`,
-        `Сильные линии ППП: ${hotFactors(r.ppp)}`,
-        `Сильные линии ТКП: ${hotFactors(r.tkp)}`,
-        `Сильные линии ЭКП: ${hotFactors(r.ekp)}`
-      ].join("\n");
-
-      return `${DEEPSEEK_SYSTEM_PROMPT}
-
-Данные клиента:
-${client}
-Контекст/запрос: ${context}
-
-Профили теста Сонди:
-${profileBlock}
-
-Методика чтения для этой интерпретации:
-1. Сначала читай края, а не стандартную сухую схему: h вместе с m, затем s вместе с d.
-2. h+m — это либидо, телесная и эмоциональная близость, признание и подпитка от контакта; покажи, тянется человек к контакту, цепляется за него, отходит, запрещает потребность или качается между сближением и отказом.
-3. s+d — это энергия/агрессия по отношению к самому близкому контакту и объекту; покажи, удерживает ли человек старую связь, ищет новый объект, давит, терпит, срывается или переводит злость в скрытую форму.
-4. Потом читай середину: P-вектор e+e-/hy+hy- как чувства в отношениях, семье или коллективе.
-5. e- трактуй как гнев, чувство несправедливости, обвинение, месть, внутренний суд; e+ — как вина, попытка быть хорошим, моральное удержание злости, примирительность или страх разрушить связь.
-6. hy+ трактуй как потребность быть замеченным и признанным, демонстративность, сцену; hy- — как стыд, скрытие, страх выглядеть лишним или некрасивым.
-7. Sch-вектор k+p читай как контроль, границы, правоту, подозрение и проекцию: где человек держит лицо, где подгоняет реальность под схему, где проверяет другого вместо прямого запроса.
-8. Используй ТКП и ЭКП не как украшение, а как динамику: что видимо, что вытеснено, что уже переходит в поведение.
-
-Обязательная структура ответа:
-# Контекст
-# Заключение
-# Краевой разбор
-# Срединный разбор
-# Комплементарный анализ
-# Вывод
-
-Требования к тексту:
-- Пиши конкретно под эти знаки, не объясняй фактор отдельно от связки.
-- Не делай списки определений и не пересказывай теорию Сонди.
-- В каждом разделе показывай причинную цепочку: потребность → запрет/защита → компенсация → цена → влияние на жизнь.
-- Учитывай контекст клиента, если он указан; если речь об отношениях, читай через партнера и близость, если о работе — через коллектив, признание, авторитет и конфликт.
-- Формулируй смело, но как гипотезу для дальнейшей психологической работы, без медицинских диагнозов.
-- Объем: 900–1500 слов, плотный стиль, абзацы как в профессиональном разборе, без эмодзи.
-`;
-    }
-
     function buildInterpretationPayload() {
       const r = state.results;
       const compactProfile = (profile) => Object.fromEntries(FACTORS.map((f) => [f, {
@@ -1786,33 +1662,85 @@ ${profileBlock}
         minus: profile.signs[f].minus
       }]));
 
-      const deepSeekPrompt = buildDeepSeekPrompt(r);
+      const profiles = {
+        ppp: compactProfile(r.ppp),
+        tkp: compactProfile(r.tkp),
+        ekp: compactProfile(r.ekp)
+      };
+      const systemPrompt = buildSystemPromptForDeepSeek();
+      const prompt = buildUserPromptForDeepSeek(r, profiles);
+
       return {
         app: "maykina-psy-szondi",
         version: "1.5.0",
         client: r.client,
-        profiles: {
-          ppp: compactProfile(r.ppp),
-          tkp: compactProfile(r.tkp),
-          ekp: compactProfile(r.ekp)
-        },
+        profiles,
         dynamics: r.dynamics,
         vectorSummary: vectorSummary(r.ppp),
         rawSelections: r.rawSelections,
-        methodologyVersion: "edge-first-hm-sd-p-sch-2026-06",
-        systemPrompt: DEEPSEEK_SYSTEM_PROMPT,
-        prompt: deepSeekPrompt,
-        aiPrompt: deepSeekPrompt,
+        systemPrompt,
+        prompt,
+        aiPrompt: prompt,
         messages: [
-          { role: "system", content: DEEPSEEK_SYSTEM_PROMPT },
-          { role: "user", content: deepSeekPrompt }
-        ],
-        generation: {
-          model: "deepseek-chat",
-          temperature: 0.85,
-          maxTokens: 3500
-        }
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt }
+        ]
       };
+    }
+
+    function buildSystemPromptForDeepSeek() {
+      return `Ты пишешь интерпретацию теста Сонди для сайта психолога-судьбоаналитика. Стиль — сильный, живой, конкретный, взрослый. Нельзя писать сухую энциклопедию факторов. Нельзя пересказывать определения. Нужно говорить о психологической динамике человека в его контексте: отношения, работа, брак, тело, выбор, обиды, контроль, привязанность, скрытая агрессия, тяга к новому объекту.
+
+Пиши на русском языке. Обращайся к человеку на «вы», но без канцелярита. Тон: глубокий, точный, иногда жесткий, но не унижающий. Формулировки должны быть похожи на профессиональный разбор, а не на рекламный текст. Не пиши «приходите», «бережно», «я как ИИ». Не ставь диагнозы. Не обещай медицинское лечение.
+
+Обязательный порядок анализа:
+1. Сначала читать края: связка h вместе с m. Это либидо, телесная и эмоциональная близость, контакт, признание, привязанность, удержание или отпускание контакта.
+2. Затем читать связку s вместе с d в контексте проблемы. s — энергия, напор, агрессия или её отсутствие в отношении самого близкого контакта; d — удержание старого объекта, потеря, поиск нового объекта, смена опоры.
+3. Затем читать середину: вектор P, то есть e вместе с hy. Здесь описывать чувства внутри отношений или коллектива: гнев, вина, обида, несправедливость, желание отомстить, демонстрация, стыд, запрет на прямое предъявление, потребность быть замеченным.
+4. Затем читать Sch: k вместе с p. Это контроль, форма, границы, Я-позиция, подозрение, проекция, внутренняя правота, страх развалиться, удержание лица.
+5. После этого сравнить ППП, ТКП и ЭКП: что человек показывает снаружи, что вытеснено/компенсируется и что уже начинает прорываться в поведении.
+
+Формат ответа строго такой:
+## Контекст
+2–4 абзаца, с учетом возраста, пола, брака/отношений/работы и запроса.
+
+## Заключение
+3–5 плотных абзацев. Не общие слова, а главный конфликт.
+
+## Векторный разбор
+Подзаголовки: h+m, s+d, P: e+hy, Sch: k+p. В каждом 1–3 абзаца с причинно-следственной цепочкой: потребность -> запрет/защита -> компенсация -> цена -> как проявляется в жизни.
+
+## Комплементарный анализ
+2–4 абзаца про ППП/ТКП/ЭКП и внутреннюю динамику.
+
+## Вывод
+2–4 абзаца: что будет усиливаться, если ничего не менять, и с чем лучше работать у специалиста.
+
+Запрещено: списки определений факторов, сухие формулы, «возможно/вероятно» в каждом предложении, эзотерическая вода, диагнозы, медицинские обещания.`;
+    }
+
+    function buildUserPromptForDeepSeek(r, profiles) {
+      const client = r.client || {};
+      const clientLine = [
+        client.name ? `имя/псевдоним: ${client.name}` : "имя не указано",
+        client.age ? `возраст: ${client.age}` : "возраст не указан",
+        client.gender ? `пол: ${client.gender}` : "пол не указан",
+        client.status ? `статус: ${client.status}` : "статус не указан"
+      ].join("; ");
+      const context = client.context ? client.context : "контекст не указан, интерпретируй как актуальное состояние здесь и сейчас";
+
+      return `Данные клиента: ${clientLine}.
+Запрос/контекст: ${context}.
+
+Профили теста Сонди:
+ППП: ${JSON.stringify(profiles.ppp, null, 2)}
+ТКП: ${JSON.stringify(profiles.tkp, null, 2)}
+ЭКП: ${JSON.stringify(profiles.ekp, null, 2)}
+
+Динамика ППП/ТКП/ЭКП: ${JSON.stringify(r.dynamics, null, 2)}
+Краткая сводка векторов: ${vectorSummary(r.ppp)}.
+
+Сделай не энциклопедическую, а конкретную интерпретацию. Сначала обязательно прочитай h вместе с m, потом s вместе с d, потом P как e+hy, потом Sch как k+p. Объясняй не «что означает фактор», а как эта связка живет в поведении, отношениях, работе, теле, выборе и конфликте человека. Пиши на уровне сильного профессионального разбора.`;
     }
 
     function markdownToHtml(markdown) {
