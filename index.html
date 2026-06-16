@@ -481,12 +481,16 @@
       border: 1px solid #e1d9ce;
       border-radius: 22px;
       padding: 16px;
-      overflow: auto;
+      overflow: hidden;
     }
     .profile-card h3 { margin-bottom: 10px; }
     .profile-hint { color: #5d5650; font-size: 13px; margin: 8px 0 0; line-height: 1.42; }
 
-    .szondi-chart-wrap { min-width: 760px; }
+    .szondi-chart-wrap {
+      width: 100%;
+      min-width: 0;
+      overflow: hidden;
+    }
     .vector-header, .factor-header, .reaction-footer {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
@@ -554,11 +558,12 @@
     .chart-cell.neg-fill { background: var(--bad); }
     .chart-cell strong { font-weight: 500; }
 
-    .sign-table-wrap { overflow:auto; }
+    .sign-table-wrap { overflow: hidden; }
     .sign-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 760px;
+      min-width: 0;
+      table-layout: fixed;
       background: #fffaf2;
       border-radius: 18px;
       overflow: hidden;
@@ -674,9 +679,11 @@
       .top-actions { display: none; }
       .hero-main, .hero-side, .panel, .portrait-stage { padding: 16px; border-radius: 22px; }
       .feature-grid, .input-row, .mini-cards { grid-template-columns: 1fr; }
-      .portrait-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
-      .portrait-card { min-height: 196px; border-radius: 18px; }
-      .portrait-grid.final-round { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; }
+      .portrait-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; }
+      .portrait-card { min-height: 0; aspect-ratio: 3 / 4; border-radius: 14px; }
+      .portrait-card .selection-mark { inset: auto 5px 5px 5px; padding: 6px; border-radius: 10px; font-size: 10px; }
+      .portrait-card .portrait-fallback { font-size: 10px; padding: 6px; }
+      .portrait-grid.final-round { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; }
       .portrait-grid.final-round .portrait-card { min-height: 0; aspect-ratio: 3 / 4; border-radius: 14px; }
       .portrait-grid.final-round .selection-mark { inset: auto 5px 5px 5px; padding: 6px; border-radius: 10px; font-size: 10px; }
       .instruction-card { display: grid; }
@@ -685,9 +692,36 @@
       .result-cta-buttons { min-width: 0; }
       .btn-row { align-items: stretch; }
       .btn { width: 100%; }
-      .chart-grid { --chart-row: 38px; }
-      .chart-cell { font-size: 18px; }
+      .profile-card { padding: 10px; border-radius: 16px; }
+      .profile-card h3 { font-size: 18px; margin-bottom: 8px; }
+      .szondi-chart-wrap { width: 100%; min-width: 0; }
+      .vector-header .vector-cell { font-size: 14px; padding: 7px 0; }
+      .factor-header .factor-cell,
+      .reaction-footer .reaction-cell { font-size: 13px; padding: 6px 0; }
+      .reaction-footer .reaction-cell { font-size: 12px; }
+      .chart-grid { --chart-row: 24px; }
+      .chart-grid::after,
+      .chart-midline { height: 3px; transform: translateY(-1.5px); }
+      .chart-cell { font-size: 13px; }
+      .sign-table th, .sign-table td { padding: 7px 3px; font-size: 12px; }
+      .sign-table td:first-child, .sign-table th:first-child { min-width: 0; width: 68px; font-size: 11px; }
+      .sign-table td small { display: none; }
     }
+
+    @media (max-width: 380px) {
+      .portrait-grid { gap: 5px; }
+      .portrait-card { border-radius: 12px; }
+      .chart-grid { --chart-row: 22px; }
+      .chart-cell { font-size: 12px; }
+      .vector-header .vector-cell { font-size: 13px; }
+      .factor-header .factor-cell,
+      .reaction-footer .reaction-cell { font-size: 12px; }
+    }
+
+    .pdf-exporting .profile-card { overflow: visible !important; }
+    .pdf-exporting .szondi-chart-wrap { width: 100% !important; min-width: 0 !important; overflow: visible !important; }
+    .pdf-exporting .sign-table-wrap { overflow: visible !important; }
+    .pdf-exporting .sign-table { min-width: 0 !important; table-layout: fixed !important; }
 
     @media print {
       body { background: #fff; color: #000; }
@@ -880,7 +914,7 @@
       siteName: "Валерия Майкина",
       specialistName: "Валерия Майкина",
       telegramUrl: "https://t.me/vau_leriya",
-      interpretationApiUrl: "https://functions.yandexcloud.net/d4eknbeun02tsl1libe5",
+      interpretationApiUrl: "",
       portraitRoot: "szondi",
       portraitExt: "webp",
       pdfPrefix: "maykina-szondi-result",
@@ -1552,7 +1586,7 @@
 
       return {
         app: "maykina-psy-szondi",
-        version: "1.3.0",
+        version: "1.4.0",
         client: r.client,
         profiles: {
           ppp: compactProfile(r.ppp),
