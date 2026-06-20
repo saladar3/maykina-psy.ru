@@ -667,6 +667,21 @@
 .print-only { display: none; }
     .pdf-exporting .no-pdf { display: none !important; }
 
+    .hero-consult { display: none; }
+    .ai-timer {
+      margin-top: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 18px;
+      border-radius: 14px;
+      background: rgba(176, 137, 70, 0.12);
+      color: #8a6a37;
+      font-weight: 600;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+
     @media (max-width: 1020px) {
       .hero { grid-template-columns: 1fr; }
       .hero-main { min-height: auto; }
@@ -680,6 +695,7 @@
       .app-shell { width: min(100% - 20px, 1180px); padding-top: 14px; }
       .topbar { align-items: flex-start; }
       .top-actions { display: none; }
+      .hero-consult { display: inline-flex; width: 100%; justify-content: center; margin-top: 18px; }
       .hero-main, .hero-side, .panel, .portrait-stage { padding: 16px; border-radius: 22px; }
       .feature-grid, .input-row, .mini-cards { grid-template-columns: 1fr; }
       .portrait-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; }
@@ -759,13 +775,15 @@
           <section class="glass hero-main">
             <div class="eyebrow">✨ Тест Сонди онлайн</div>
             <h1>Получите интерпретацию вашего состояния и найдите истинные причины ваших проблем здесь и сейчас.</h1>
-            <p class="lead"><strong>Что это такое?</strong> Тест Сонди предсказывает судьбу! Может рассказать что было, что есть и что будет. Это точный судьбоаналитический инструмент диагностики для выявления истинных причин Ваших проблем в отношениях, на работе, проблем со здоровьем с которыми Вы много лет ходите по разным психологам.</p>
+            <p class="lead"><strong>Что это такое?</strong> Тест Сонди предсказывает судьбу! Может рассказать что было, что есть и что будет. Это точный судьбоаналитический инструмент диагностики для выявления истинных причин Ваших проблем в отношениях, на работе, проблем со здоровьем, с которыми Вы много лет ходите по разным специалистам.</p>
 
             <div class="feature-grid single-feature">
               <div class="feature feature-one-line">Тестирование займет 5 минут.</div>
             </div>
 
             <div class="tiny-note">Тест Сонди — психоаналитическая проективная методика швейцарского врача, психиатра, судьбоаналитика Леопольда Зонди; результат считается точным только при работе со специалистом судьбоаналитиком.</div>
+
+            <a class="btn btn-consult hero-consult no-print" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться на консультацию к Валерии</a>
           </section>
 
           <aside class="glass hero-side">
@@ -835,9 +853,6 @@
             <div class="after-grid-actions after-grid-actions-clean">
               <span class="tiny-note" id="gridHint">Выбирайте быстро, не задумываясь!</span>
               <span class="tiny-note" id="imagePathHint"></span>
-              <div class="btn-row clean-actions">
-                <button class="btn btn-secondary btn-small" id="clearPhaseButton" type="button">Снять выбор</button>
-              </div>
             </div>
           </section>
         </div>
@@ -912,7 +927,7 @@
       portraitRoot: "szondi",
       portraitExt: "webp",
       portraitExts: ["webp", "WEBP", "jpg", "jpeg", "png"],
-      assetsVersion: "2026-06-20-key-2",
+      assetsVersion: "2026-06-21-ui-1",
       paidMode: false,
       paymentUrl: "",
       pdfPrefix: "maykina-szondi-result",
@@ -1024,7 +1039,6 @@
         interpretationButton.addEventListener("click", requestDeepInterpretation);
       }
       $("clientForm").addEventListener("submit", onStart);
-      $("clearPhaseButton").addEventListener("click", clearCurrentPhase);
       const resetButton = $("resetButton");
       if (resetButton) resetButton.addEventListener("click", resetAll);
       const topResetButton = $("topResetButton");
@@ -1868,7 +1882,23 @@
       }
 
       analysisBlock.style.display = "block";
-      analysisBlock.innerHTML = `<h2>Идет анализ ИИ</h2><p class="muted">Интерпретация формируется автоматически. Обычно это занимает несколько секунд.</p>`;
+      analysisBlock.innerHTML = `<h2>Идет анализ ИИ</h2><p class="muted">Интерпретация формируется автоматически.</p><div class="ai-timer" id="aiTimer">⏳ Интерпретация будет готова примерно через 1:00</div>`;
+
+      const aiTimerStart = Date.now();
+      const aiTimerEstimate = 60;
+      const aiTimerEl = $("aiTimer");
+      const aiTimerInterval = window.setInterval(() => {
+        if (!aiTimerEl) return;
+        const elapsed = Math.floor((Date.now() - aiTimerStart) / 1000);
+        const remaining = Math.max(0, aiTimerEstimate - elapsed);
+        if (remaining > 3) {
+          const mm = Math.floor(remaining / 60);
+          const ss = String(remaining % 60).padStart(2, "0");
+          aiTimerEl.textContent = `⏳ Интерпретация будет готова примерно через ${mm}:${ss}`;
+        } else {
+          aiTimerEl.textContent = "⏳ Почти готово, ещё несколько секунд…";
+        }
+      }, 1000);
 
       try {
         const payload = buildInterpretationPayload();
@@ -1889,6 +1919,7 @@
         analysisBlock.innerHTML = `<h2>Краткая интерпретация</h2><p>Не удалось получить интерпретацию ИИ: ${escapeHtml(error.message)}</p><p class="muted">Ниже оставлена рабочая сводка по рассчитанным профилям, чтобы результат можно было сохранить в PDF.</p>${buildLocalAnalysisHtml()}`;
         showToast(error.message);
       } finally {
+        window.clearInterval(aiTimerInterval);
         if (button) {
           button.disabled = false;
           button.textContent = old;
