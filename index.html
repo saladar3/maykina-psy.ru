@@ -669,17 +669,31 @@
 
     .hero-consult { display: none; }
     .ai-timer {
-      margin-top: 14px;
+      margin-top: 16px;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 11px 18px;
-      border-radius: 14px;
-      background: rgba(176, 137, 70, 0.12);
-      color: #8a6a37;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .ai-timer-label {
+      color: #5f554c;
       font-weight: 600;
-      font-size: 18px;
-      letter-spacing: 0.2px;
+      font-size: 16px;
+    }
+    .ai-clock {
+      display: inline-block;
+      background: #14110d;
+      color: #e7b94e;
+      font-family: "Courier New", ui-monospace, monospace;
+      font-weight: 700;
+      font-size: 26px;
+      letter-spacing: 3px;
+      padding: 8px 18px;
+      border-radius: 10px;
+      border: 1px solid rgba(231, 185, 78, 0.35);
+      box-shadow: inset 0 0 12px rgba(231, 185, 78, 0.18), 0 2px 8px rgba(0, 0, 0, 0.25);
+      text-shadow: 0 0 8px rgba(231, 185, 78, 0.55);
+      font-variant-numeric: tabular-nums;
     }
 
     @media (max-width: 1020px) {
@@ -927,7 +941,7 @@
       portraitRoot: "szondi",
       portraitExt: "webp",
       portraitExts: ["webp", "WEBP", "jpg", "jpeg", "png"],
-      assetsVersion: "2026-06-21-ui-1",
+      assetsVersion: "2026-06-21-ui-2",
       paidMode: false,
       paymentUrl: "",
       pdfPrefix: "maykina-szondi-result",
@@ -1882,22 +1896,19 @@
       }
 
       analysisBlock.style.display = "block";
-      analysisBlock.innerHTML = `<h2>Идет анализ ИИ</h2><p class="muted">Интерпретация формируется автоматически.</p><div class="ai-timer" id="aiTimer">⏳ Интерпретация будет готова примерно через 1:00</div>`;
+      analysisBlock.innerHTML = `<h2>Идет анализ ИИ</h2><p class="muted">Интерпретация формируется автоматически.</p><div class="ai-timer"><span class="ai-timer-label" id="aiTimerLabel">Интерпретация будет готова через</span><span class="ai-clock" id="aiClock">1:00</span></div>`;
 
       const aiTimerStart = Date.now();
       const aiTimerEstimate = 60;
-      const aiTimerEl = $("aiTimer");
+      const aiClockEl = $("aiClock");
+      const aiTimerLabelEl = $("aiTimerLabel");
       const aiTimerInterval = window.setInterval(() => {
-        if (!aiTimerEl) return;
         const elapsed = Math.floor((Date.now() - aiTimerStart) / 1000);
         const remaining = Math.max(0, aiTimerEstimate - elapsed);
-        if (remaining > 3) {
-          const mm = Math.floor(remaining / 60);
-          const ss = String(remaining % 60).padStart(2, "0");
-          aiTimerEl.textContent = `⏳ Интерпретация будет готова примерно через ${mm}:${ss}`;
-        } else {
-          aiTimerEl.textContent = "⏳ Почти готово, ещё несколько секунд…";
-        }
+        const mm = Math.floor(remaining / 60);
+        const ss = String(remaining % 60).padStart(2, "0");
+        if (aiClockEl) aiClockEl.textContent = `${mm}:${ss}`;
+        if (aiTimerLabelEl) aiTimerLabelEl.textContent = remaining > 3 ? "Интерпретация будет готова через" : "Почти готово, ещё несколько секунд…";
       }, 1000);
 
       try {
