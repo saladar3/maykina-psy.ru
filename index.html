@@ -696,6 +696,45 @@
       font-variant-numeric: tabular-nums;
     }
 
+    .about-block { margin-top: 26px; padding: 30px; }
+    .about-head { display: flex; gap: 26px; align-items: flex-start; }
+    .about-photo {
+      width: 230px; height: 230px; flex: 0 0 auto;
+      object-fit: cover; border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+    }
+    .about-text { flex: 1 1 auto; min-width: 0; }
+    .about-text h2 { margin: 4px 0 12px; }
+    .about-text p { color: #5f554c; line-height: 1.6; margin: 0 0 12px; }
+    .about-areas { font-size: 15px; }
+    .about-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 6px; }
+    .tg-channel {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: 14px;
+      background: rgba(64, 153, 218, 0.12);
+      border: 1px solid rgba(64, 153, 218, 0.35);
+      color: #2f6f96; text-decoration: none;
+      font-size: 14px; line-height: 1.4; max-width: 430px;
+    }
+    .tg-channel:hover { background: rgba(64, 153, 218, 0.2); }
+    .tg-icon { font-size: 22px; }
+    .about-certs-title { margin: 28px 0 4px; }
+    .about-certs-note { color: #8a8078; font-size: 14px; margin: 0 0 16px; }
+    .cert-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    .cert-item {
+      display: flex; flex-direction: column; gap: 8px;
+      text-decoration: none; color: #5f554c;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 14px; padding: 10px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .cert-item:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14); }
+    .cert-item img {
+      width: 100%; aspect-ratio: 3 / 4; object-fit: contain;
+      background: #f4efe7; border-radius: 10px;
+    }
+    .cert-item span { font-size: 13px; line-height: 1.4; }
+
     @media (max-width: 1020px) {
       .hero { grid-template-columns: 1fr; }
       .hero-main { min-height: auto; }
@@ -710,6 +749,12 @@
       .topbar { align-items: flex-start; }
       .top-actions { display: none; }
       .hero-consult { display: inline-flex; width: 100%; justify-content: center; margin-top: 18px; }
+      .about-block { padding: 18px; }
+      .about-head { flex-direction: column; align-items: stretch; gap: 16px; }
+      .about-photo { width: 160px; height: 160px; align-self: center; }
+      .about-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+      .tg-channel { max-width: 100%; }
+      .cert-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
       .hero-main, .hero-side, .panel, .portrait-stage { padding: 16px; border-radius: 22px; }
       .feature-grid, .input-row, .mini-cards { grid-template-columns: 1fr; }
       .portrait-grid { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; }
@@ -850,6 +895,37 @@
             </form>
           </aside>
         </div>
+
+        <section class="about-block glass no-pdf" id="about-valeria">
+          <div class="about-head">
+            <img class="about-photo" src="about/valeria.webp" alt="Валерия Майкина — психолог, судьбоаналитик" loading="lazy" />
+            <div class="about-text">
+              <div class="eyebrow">О специалисте</div>
+              <h2>Валерия Майкина</h2>
+              <p>Психолог психоаналитической направленности, судьбоаналитик. Работаю с тестом Сонди и помогаю найти истинные причины проблем в отношениях, на работе и со здоровьем — там, где обычные методы не дают ответа.</p>
+              <p class="about-areas">Направления работы: судьбоанализ и тест Сонди, психосоматика и конверсионный синдром, работа с психотравмой и ПТСР, эриксоновский гипноз, НЛП, архетипы и жизненный стиль.</p>
+              <div class="about-actions">
+                <a class="btn btn-consult" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться на консультацию</a>
+                <a class="tg-channel" href="https://t.me/vau_lera" target="_blank" rel="noopener">
+                  <span class="tg-icon">✈️</span>
+                  <span><strong>Телеграм-канал @vau_lera</strong><br>Статьи, разборы и заметки Валерии о судьбоанализе и психологии</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <h3 class="about-certs-title">Дипломы и сертификаты</h3>
+          <p class="about-certs-note">Нажмите на изображение, чтобы рассмотреть подробнее.</p>
+          <div class="cert-grid">
+            <a class="cert-item" href="about/cert-diplom-dgtu.webp" target="_blank" rel="noopener"><img src="about/cert-diplom-dgtu.webp" alt="Диплом о профессиональной переподготовке (ДГТУ)" loading="lazy" /><span>Профпереподготовка: психологическое консультирование и психокоррекция (ДГТУ)</span></a>
+            <a class="cert-item" href="about/cert-sondi-tsapenko.webp" target="_blank" rel="noopener"><img src="about/cert-sondi-tsapenko.webp" alt="Сертификат: теория судьбоанализа и работа с тестом Сонди" loading="lazy" /><span>Теория судьбоанализа и практика работы с тестом Сонди</span></a>
+            <a class="cert-item" href="about/cert-psihosomatika.webp" target="_blank" rel="noopener"><img src="about/cert-psihosomatika.webp" alt="Сертификат: психосоматика и конверсионный синдром" loading="lazy" /><span>Психосоматика и конверсионный синдром</span></a>
+            <a class="cert-item" href="about/cert-psihotravma.webp" target="_blank" rel="noopener"><img src="about/cert-psihotravma.webp" alt="Сертификат: работа с психотравмой и ПТСР" loading="lazy" /><span>Работа с психологической травмой, ПТСР и навязчивым повтором</span></a>
+            <a class="cert-item" href="about/cert-erikson-gipnoz.webp" target="_blank" rel="noopener"><img src="about/cert-erikson-gipnoz.webp" alt="Сертификат: эриксоновский гипноз" loading="lazy" /><span>Эриксоновский гипноз</span></a>
+            <a class="cert-item" href="about/cert-nlp.webp" target="_blank" rel="noopener"><img src="about/cert-nlp.webp" alt="Сертификат: НЛП-практик" loading="lazy" /><span>НЛП-практик (психодинамический подход)</span></a>
+            <a class="cert-item" href="about/cert-arhetipy.webp" target="_blank" rel="noopener"><img src="about/cert-arhetipy.webp" alt="Сертификат: архетипы и жизненный стиль" loading="lazy" /><span>Архетипы и жизненный стиль</span></a>
+          </div>
+        </section>
       </section>
 
       <section class="screen" id="screen-test">
@@ -941,7 +1017,7 @@
       portraitRoot: "szondi",
       portraitExt: "webp",
       portraitExts: ["webp", "WEBP", "jpg", "jpeg", "png"],
-      assetsVersion: "2026-06-21-ui-2",
+      assetsVersion: "2026-06-22-about-2",
       paidMode: false,
       paymentUrl: "",
       pdfPrefix: "maykina-szondi-result",
@@ -1896,10 +1972,10 @@
       }
 
       analysisBlock.style.display = "block";
-      analysisBlock.innerHTML = `<h2>Идет анализ ИИ</h2><p class="muted">Интерпретация формируется автоматически.</p><div class="ai-timer"><span class="ai-timer-label" id="aiTimerLabel">Интерпретация будет готова через</span><span class="ai-clock" id="aiClock">1:00</span></div>`;
+      analysisBlock.innerHTML = `<h2>Идет анализ ИИ</h2><p class="muted">Интерпретация формируется автоматически.</p><div class="ai-timer"><span class="ai-timer-label" id="aiTimerLabel">Интерпретация будет готова через</span><span class="ai-clock" id="aiClock">2:00</span></div>`;
 
       const aiTimerStart = Date.now();
-      const aiTimerEstimate = 60;
+      const aiTimerEstimate = 120;
       const aiClockEl = $("aiClock");
       const aiTimerLabelEl = $("aiTimerLabel");
       const aiTimerInterval = window.setInterval(() => {
