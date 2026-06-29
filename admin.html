@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Кабинет — результаты теста Сонди</title>
   <style>
-    :root { --bg:#f2eadf; --ink:#2c2620; --muted:#8a8078; --gold:#b08946; --card:#fbf7f0; --line:#e4dac9; }
+    :root { --bg:#f2eadf; --ink:#2c2620; --muted:#8a8078; --gold:#b08946; --card:#fbf7f0; --line:#e4dac9; --grid:#dde2e4; --ok:#bff4d2; --bad:#ffd0d2; }
     * { box-sizing: border-box; }
     body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); }
     .wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
@@ -53,6 +53,40 @@
     .interp p { margin:0 0 10px; }
     .count { color:var(--muted); font-size:14px; margin-bottom:12px; }
     @media (max-width:560px){ .entry-head{ flex-direction:column; align-items:flex-start; } .entry-date{ order:-1; } }
+    /* Графики профиля (как на сайте) */
+    .charts { display: grid; gap: 16px; margin: 10px 0 16px; }
+    .profile-card { background:#fffaf1; border:1px solid #e1d9ce; border-radius:18px; padding:14px; overflow:hidden; }
+    .profile-card h3 { margin:0 0 10px; font-size:16px; }
+    .szondi-chart-wrap { width:100%; min-width:0; overflow:hidden; }
+    .vector-header, .factor-header, .reaction-footer { display:grid; grid-template-columns: repeat(8, 1fr); }
+    .vector-header .vector-cell { text-align:center; font-weight:900; font-size:18px; padding:10px 0; border:1px solid var(--grid); background:#faf8f2; }
+    .vector-cell.span-2 { grid-column: span 2; }
+    .factor-header .factor-cell, .reaction-footer .reaction-cell {
+      text-align:center; font-weight:900; font-size:18px; padding:9px 0;
+      border-left:1px solid var(--grid); border-right:1px solid var(--grid); border-bottom:1px solid var(--grid); background:#fff;
+    }
+    .reaction-footer .reaction-cell { font-size:16px; background:#fffefb; }
+    .chart-grid {
+      --chart-row: 40px;
+      display:grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(12, var(--chart-row));
+      border-left:1px solid var(--grid); border-top:1px solid var(--grid); background:#fff; position:relative; isolation:isolate;
+    }
+    .chart-grid::after, .chart-midline {
+      content:""; position:absolute; left:0; right:0; top: calc(var(--chart-row) * 6);
+      height:4px; background:#141414; transform: translateY(-2px); z-index:30; pointer-events:none;
+    }
+    .chart-cell {
+      border-right:1px solid var(--grid); border-bottom:1px solid var(--grid);
+      display:grid; place-items:center; color:#20272c; font-size:20px; position:relative; z-index:1; font-variant-numeric: tabular-nums;
+    }
+    .chart-cell.pos-fill { background: var(--ok); }
+    .chart-cell.neg-fill { background: var(--bad); }
+    .chart-cell strong { font-weight:500; }
+    @media (max-width:560px){
+      .chart-grid { --chart-row: 30px; }
+      .chart-cell { font-size:15px; }
+      .vector-header .vector-cell, .factor-header .factor-cell, .reaction-footer .reaction-cell { font-size:14px; padding:7px 0; }
+    }
   </style>
 </head>
 <body>
@@ -119,6 +153,44 @@
       return html + "</tbody></table>";
     }
 
+    function chartHtml(profile){
+      if (!profile) return "";
+      var vh = '<div class="vector-header"><div class="vector-cell span-2">S</div><div class="vector-cell span-2">P</div><div class="vector-cell span-2">Sch</div><div class="vector-cell span-2">C</div></div>';
+      var fh = '<div class="factor-header">' + FACTORS.map(function(f){ return '<div class="factor-cell">' + f + "</div>"; }).join("") + "</div>";
+      var cells = "";
+      for (var row = 6; row >= 1; row--){
+        FACTORS.forEach(function(f){
+          var plus = (profile[f] && profile[f].plus) || 0;
+          var label = plus === row ? plus : "";
+          cells += '<div class="chart-cell ' + (plus >= row ? "pos-fill" : "") + '">' + (label ? "<strong>" + label + "</strong>" : "") + "</div>";
+        });
+      }
+      for (var row2 = 1; row2 <= 6; row2++){
+        FACTORS.forEach(function(f){
+          var minus = (profile[f] && profile[f].minus) || 0;
+          var label = minus === row2 ? minus : "";
+          cells += '<div class="chart-cell ' + (row2 === 1 ? "midline" : "") + " " + (minus >= row2 ? "neg-fill" : "") + '">' + (label ? "<strong>" + label + "</strong>" : "") + "</div>";
+        });
+      }
+      var grid = '<div class="chart-grid">' + cells + '<div class="chart-midline" aria-hidden="true"></div></div>';
+      var footer = '<div class="reaction-footer">' + FACTORS.map(function(f){
+        var sym = (profile[f] && (profile[f].sign != null ? profile[f].sign : profile[f].base)) || "";
+        return '<div class="reaction-cell">' + f + escapeHtml(sym) + "</div>";
+      }).join("") + "</div>";
+      return vh + fh + grid + footer;
+    }
+
+    function chartsBlock(profiles){
+      if (!profiles) return "";
+      var defs = [["Передний профиль (ППП)","ppp"],["Задний профиль (ТКП)","tkp"],["Экспериментальный профиль (ЭКП)","ekp"]];
+      var inner = defs.map(function(d){
+        var p = profiles[d[1]];
+        if (!p) return "";
+        return '<div class="profile-card"><h3>' + d[0] + '</h3><div class="szondi-chart-wrap">' + chartHtml(p) + "</div></div>";
+      }).join("");
+      return inner ? ('<div class="charts">' + inner + "</div>") : "";
+    }
+
     async function callList(pw){
       var resp = await fetch(API_URL, {
         method: "POST",
@@ -180,7 +252,7 @@
             '<div class="entry-meta">' + escapeHtml(meta) + (r.personCode ? (" · код: " + escapeHtml(r.personCode)) : "") + "</div></div>" +
             '<div class="entry-date">' + fmtDate(r.savedAt) + "</div>" +
           "</div>" +
-          '<div class="entry-body" id="body-' + i + '">' + ctx + profileTable(r.profiles) + '<div class="interp">' + interp + "</div></div>" +
+          '<div class="entry-body" id="body-' + i + '">' + ctx + profileTable(r.profiles) + chartsBlock(r.profiles) + '<div class="interp">' + interp + "</div></div>" +
         "</div>";
       }).join("");
     }
