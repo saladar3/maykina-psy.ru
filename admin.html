@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Кабинет — результаты теста Сонди</title>
+  <style>
+    :root { --bg:#f2eadf; --ink:#2c2620; --muted:#8a8078; --gold:#b08946; --card:#fbf7f0; --line:#e4dac9; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 24px 16px 80px; }
+    h1 { font-size: 24px; margin: 0 0 4px; }
+    .muted { color: var(--muted); }
+    .sub { color: var(--muted); margin: 0 0 24px; font-size: 15px; }
+
+    .login { max-width: 360px; margin: 60px auto; background: var(--card); border:1px solid var(--line); border-radius:18px; padding: 28px; }
+    .login h1 { text-align:center; }
+    .login p { text-align:center; }
+    input[type=password], input[type=text] {
+      width:100%; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font-size:16px;
+      background:#fff; color:var(--ink); margin-top: 10px;
+    }
+    button {
+      cursor:pointer; border:none; border-radius:12px; padding:12px 18px; font-size:16px; font-weight:600;
+      background:var(--gold); color:#fff; margin-top: 14px; width:100%;
+    }
+    button:hover { filter:brightness(1.05); }
+    button.secondary { background:#efe7d8; color:var(--ink); width:auto; padding:8px 14px; font-size:14px; margin:0; }
+    .login-status { text-align:center; color:#b3543f; min-height:20px; margin-top:12px; font-size:14px; }
+
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom: 16px; }
+    .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom: 18px; }
+    .toolbar input { margin:0; max-width: 320px; }
+
+    .entry { background:var(--card); border:1px solid var(--line); border-radius:16px; margin-bottom:14px; overflow:hidden; }
+    .entry-head { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 18px; cursor:pointer; }
+    .entry-head:hover { background:#f6efe3; }
+    .entry-name { font-weight:700; font-size:17px; }
+    .entry-meta { color:var(--muted); font-size:13px; margin-top:3px; }
+    .entry-date { color:var(--muted); font-size:13px; white-space:nowrap; }
+    .entry-body { display:none; padding:0 18px 18px; }
+    .entry-body.open { display:block; }
+    .ctx { background:#f6efe3; border-radius:10px; padding:10px 12px; margin:6px 0 14px; font-size:14px; line-height:1.5; }
+
+    table.ptable { width:100%; border-collapse:collapse; margin: 6px 0 16px; font-size:14px; }
+    table.ptable th, table.ptable td { border:1px solid var(--line); padding:7px 6px; text-align:center; }
+    table.ptable thead th { background:#efe7d8; }
+    table.ptable .pname { text-align:left; font-weight:700; white-space:nowrap; }
+
+    .interp { line-height:1.65; font-size:15px; }
+    .interp h3 { font-size:16px; margin:16px 0 6px; }
+    .interp p { margin:0 0 10px; }
+    .count { color:var(--muted); font-size:14px; margin-bottom:12px; }
+    @media (max-width:560px){ .entry-head{ flex-direction:column; align-items:flex-start; } .entry-date{ order:-1; } }
+  </style>
+</head>
+<body>
+  <!-- ВАЖНО: адрес вашей облачной функции (тот же, что в index.html в CONFIG.interpretationApiUrl). -->
+  <script>
+    const API_URL = "https://functions.yandexcloud.net/d4eknbeun02tsl1libe5";
+    const FACTORS = ["h","s","e","hy","k","p","d","m"];
+    let allResults = [];
+  </script>
+
+  <div id="login" class="login">
+    <h1>Кабинет специалиста</h1>
+    <p class="muted">Результаты теста Сонди</p>
+    <input id="pw" type="password" placeholder="Пароль" onkeydown="if(event.key==='Enter')login()" />
+    <button onclick="login()">Войти</button>
+    <div id="loginStatus" class="login-status"></div>
+  </div>
+
+  <div id="app" class="wrap" style="display:none">
+    <div class="topbar">
+      <div>
+        <h1>Результаты теста Сонди</h1>
+        <p class="sub">Все прохождения, новые сверху</p>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button class="secondary" onclick="reload()">Обновить</button>
+        <button class="secondary" onclick="logout()">Выйти</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input id="search" type="text" placeholder="Поиск по имени или коду" oninput="render()" />
+    </div>
+    <div id="count" class="count"></div>
+    <div id="list"></div>
+  </div>
+
+  <script>
+    function escapeHtml(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+    function inlineMd(s){ return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"); }
+    function mdToHtml(md){
+      var esc = escapeHtml(md);
+      return esc.split(/\n{2,}/).map(function(b){
+        b = b.trim();
+        if (!b) return "";
+        var m = b.match(/^#{2,3}\s+([\s\S]*)$/);
+        if (m) return "<h3>" + inlineMd(m[1].trim()) + "</h3>";
+        return "<p>" + inlineMd(b).replace(/\n/g, "<br>") + "</p>";
+      }).join("");
+    }
+    function fmtDate(iso){
+      try { return new Date(iso).toLocaleString("ru-RU", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }); }
+      catch(_) { return iso || ""; }
+    }
+    function profileTable(profiles){
+      var rows = [["ППП","ppp"],["ТКП","tkp"],["ЭКП","ekp"]];
+      var html = '<table class="ptable"><thead><tr><th>Профиль</th>' + FACTORS.map(function(f){ return "<th>" + f + "</th>"; }).join("") + "</tr></thead><tbody>";
+      rows.forEach(function(r){
+        var p = profiles && profiles[r[1]];
+        html += '<tr><td class="pname">' + r[0] + "</td>" + FACTORS.map(function(f){
+          var cell = (p && p[f]) ? (p[f].sign || p[f].base || "—") : "—";
+          return "<td>" + escapeHtml(cell) + "</td>";
+        }).join("") + "</tr>";
+      });
+      return html + "</tbody></table>";
+    }
+
+    async function callList(pw){
+      var resp = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "list", password: pw })
+      });
+      var data = await resp.json().catch(function(){ return {}; });
+      if (!resp.ok || !data.ok) throw new Error(data.error || ("Ошибка " + resp.status));
+      return data.results || [];
+    }
+
+    let currentPw = "";
+    async function login(){
+      var pw = document.getElementById("pw").value.trim();
+      var status = document.getElementById("loginStatus");
+      status.textContent = "Загружаю…";
+      try {
+        allResults = await callList(pw);
+        currentPw = pw;
+        document.getElementById("login").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        render();
+      } catch (e) {
+        status.textContent = e.message;
+      }
+    }
+    async function reload(){
+      try { allResults = await callList(currentPw); render(); }
+      catch(e){ alert("Не удалось обновить: " + e.message); }
+    }
+    function logout(){
+      currentPw = ""; allResults = [];
+      document.getElementById("app").style.display = "none";
+      document.getElementById("login").style.display = "block";
+      document.getElementById("pw").value = "";
+      document.getElementById("loginStatus").textContent = "";
+    }
+
+    function render(){
+      var q = (document.getElementById("search").value || "").toLowerCase().trim();
+      var list = document.getElementById("list");
+      var filtered = allResults.filter(function(r){
+        if (!q) return true;
+        var name = ((r.client && r.client.name) || "").toLowerCase();
+        var code = (r.personCode || "").toLowerCase();
+        return name.indexOf(q) >= 0 || code.indexOf(q) >= 0;
+      });
+      document.getElementById("count").textContent = "Всего прохождений: " + allResults.length + (q ? (", найдено: " + filtered.length) : "");
+      if (!filtered.length) { list.innerHTML = '<p class="muted">Ничего не найдено.</p>'; return; }
+      list.innerHTML = filtered.map(function(r, i){
+        var c = r.client || {};
+        var name = c.name || "Без имени";
+        var meta = [c.age && ("возраст: " + c.age), c.gender && ("пол: " + c.gender), c.status && ("статус: " + c.status)].filter(Boolean).join(" · ");
+        var ctx = c.context ? ('<div class="ctx"><b>Запрос:</b> ' + escapeHtml(c.context) + "</div>") : "";
+        var interp = r.interpretation ? mdToHtml(r.interpretation) : '<span class="muted">интерпретация не сохранена</span>';
+        return '<div class="entry">' +
+          '<div class="entry-head" onclick="document.getElementById(\'body-' + i + '\').classList.toggle(\'open\')">' +
+            '<div><div class="entry-name">' + escapeHtml(name) + "</div>" +
+            '<div class="entry-meta">' + escapeHtml(meta) + (r.personCode ? (" · код: " + escapeHtml(r.personCode)) : "") + "</div></div>" +
+            '<div class="entry-date">' + fmtDate(r.savedAt) + "</div>" +
+          "</div>" +
+          '<div class="entry-body" id="body-' + i + '">' + ctx + profileTable(r.profiles) + '<div class="interp">' + interp + "</div></div>" +
+        "</div>";
+      }).join("");
+    }
+  </script>
+</body>
+</html>

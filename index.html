@@ -840,7 +840,7 @@
               <div class="feature feature-one-line">Тестирование займет 5 минут.</div>
             </div>
 
-            <div class="tiny-note">Тест Сонди — психоаналитическая проективная методика швейцарского врача, психиатра, судьбоаналитика Леопольда Зонди; результат считается точным только при работе со специалистом судьбоаналитиком.</div>
+            <div class="tiny-note">Тест Сонди — психоаналитическая проективная методика швейцарского врача, психиатра, судьбоаналитика Леопольда Зонди; результат считается точным только при работе со специалистом судьбоаналитиком. Результаты прохождения сохраняются и могут быть просмотрены специалистом для разбора; прохождение анонимно, если вы не указали имя.</div>
 
             <a class="btn btn-consult hero-consult no-print" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться на консультацию к Валерии</a>
           </section>
@@ -1017,7 +1017,7 @@
       portraitRoot: "szondi",
       portraitExt: "webp",
       portraitExts: ["webp", "WEBP", "jpg", "jpeg", "png"],
-      assetsVersion: "2026-06-22-about-2",
+      assetsVersion: "2026-06-23-store-1",
       paidMode: false,
       paymentUrl: "",
       pdfPrefix: "maykina-szondi-result",
@@ -2014,6 +2014,19 @@
       }
     }
 
+    function getPersonCode() {
+      try {
+        let c = localStorage.getItem("maykina_person_code");
+        if (!c) {
+          c = "p-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+          localStorage.setItem("maykina_person_code", c);
+        }
+        return c;
+      } catch (_) {
+        return "";
+      }
+    }
+
     function buildInterpretationPayload() {
       const r = state.results;
       const compactProfile = (profile) => Object.fromEntries(FACTORS.map((f) => [f, {
@@ -2036,6 +2049,7 @@
         app: "maykina-psy-szondi",
         version: "1.6.6",
         client: r.client,
+        personCode: getPersonCode(),
         profiles,
         dynamics: r.dynamics,
         changeEnergy: buildChangeEnergyForDeepSeek(r.dynamics),
@@ -2185,30 +2199,75 @@
 
       try {
         document.body.classList.add("pdf-exporting");
-        const canvas = await window.html2canvas(content, {
-          scale: Math.min(2, window.devicePixelRatio || 1.5),
-          backgroundColor: "#f2eadf",
-          useCORS: true,
-          logging: false
-        });
-        const imgData = canvas.toDataURL("image/jpeg", 0.92);
+        await new Promise((r) => setTimeout(r, 60)); // дать стилям примениться
+
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF("p", "mm", "a4");
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = pageWidth;
-        const imgHeight = canvas.height * imgWidth / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
+        const margin = 8;
+        const usableWidth = pageWidth - margin * 2;
+        const gap = 4;
+        const renderScale = Math.min(2, window.devicePixelRatio || 1.5);
+        let cursorY = margin;
 
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
+        // Блоки, которые нельзя разрывать (таблица и каждый график — по отдельности).
+        // Длинный текст интерпретации при необходимости переносится между страницами.
+        const blocks = [];
+        const summary = $("summaryCards");
+        if (summary) blocks.push(summary.closest(".result-block") || summary);
+        const tableSection = $("signTableWrap") && $("signTableWrap").closest(".result-block");
+        if (tableSection) blocks.push(tableSection);
+        const chartHost = $("profileCharts");
+        if (chartHost) chartHost.querySelectorAll(".profile-card").forEach((c) => blocks.push(c));
+        const analysis = $("localAnalysis");
+        if (analysis && analysis.textContent.trim()) blocks.push(analysis);
+        if (!blocks.length) blocks.push(content);
+
+        const addBlock = async (el, atomic) => {
+          const canvas = await window.html2canvas(el, {
+            scale: renderScale,
+            backgroundColor: "#f7f1e7",
+            useCORS: true,
+            logging: false
+          });
+          const imgData = canvas.toDataURL("image/jpeg", 0.92);
+
+          if (atomic) {
+            // цельный блок (таблица/график) — не разрываем
+            const wMm = usableWidth;
+            const hMm = canvas.height * wMm / canvas.width;
+            if (cursorY + hMm > pageHeight - margin) {
+              pdf.addPage();
+              cursorY = margin;
+            }
+            pdf.addImage(imgData, "JPEG", margin, cursorY, wMm, hMm);
+            cursorY += hMm + gap;
+          } else {
+            // длинный текст — с новой страницы, чистый перенос без наложений
+            if (cursorY > margin) {
+              pdf.addPage();
+              cursorY = margin;
+            }
+            const fullW = pageWidth;
+            const fullH = canvas.height * fullW / canvas.width;
+            let position = 0;
+            pdf.addImage(imgData, "JPEG", 0, position, fullW, fullH);
+            let heightLeft = fullH - pageHeight;
+            while (heightLeft > 0) {
+              pdf.addPage();
+              position -= pageHeight;
+              pdf.addImage(imgData, "JPEG", 0, position, fullW, fullH);
+              heightLeft -= pageHeight;
+            }
+            cursorY = pageHeight;
+          }
+        };
+
+        for (const el of blocks) {
+          await addBlock(el, el !== analysis);
         }
+
         const name = state.results?.client?.name ? slugify(state.results.client.name) : "client";
         pdf.save(`${CONFIG.pdfPrefix}-${name}-${new Date().toISOString().slice(0,10)}.pdf`);
       } catch (error) {
