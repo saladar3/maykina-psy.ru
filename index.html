@@ -2235,7 +2235,11 @@
           dynamics: r.dynamics || null
         };
 
-        /* Показываем интерпретацию, если она сохранена */
+        /* Сначала рендерим графики и таблицы (renderResults очищает блок интерпретации) */
+        renderResults();
+        showScreen("screen-results");
+
+        /* Потом вставляем интерпретацию поверх — чтобы renderResults её не стёр */
         if (r.interpretation) {
           const analysisBlock = $("localAnalysis");
           if (analysisBlock) {
@@ -2244,9 +2248,6 @@
           }
         }
 
-        /* Показываем экран результатов */
-        renderResults();
-        showScreen("screen-results");
         showShareBlock(code);
         showToast("Результат загружен по ссылке.");
 
