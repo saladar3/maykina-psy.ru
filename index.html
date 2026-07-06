@@ -298,6 +298,64 @@
     .btn-secondary { color: var(--text); background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.15); }
     .btn-consult { color: #fff8ec; background: linear-gradient(135deg, #17110d, #4b2b18 54%, #8f5a2b); border: 1px solid rgba(23,17,13,.70); box-shadow: 0 22px 54px rgba(52,27,14,.32); text-shadow: 0 1px 1px rgba(0,0,0,.22); }
     .btn-consult:hover { filter: brightness(1.05); }
+
+    /* Мессенджер-кнопки (WhatsApp + Telegram) */
+    .consult-messengers { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .consult-label { font-size: 15px; color: rgba(255,247,232,.85); white-space: nowrap; }
+    .btn-messenger {
+      display: inline-flex; align-items: center; gap: 8px;
+      min-height: 44px; padding: 10px 18px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      transition: transform .18s ease, filter .18s ease;
+      border: 1px solid rgba(255,255,255,.18);
+      backdrop-filter: blur(12px);
+    }
+    .btn-messenger:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn-messenger svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .btn-messenger.messenger-wa { background: rgba(37,211,102,.22); color: #a5f3c8; }
+    .btn-messenger.messenger-tg { background: rgba(68,183,236,.22); color: #93d5f5; }
+
+    /* Шапка: компактные мессенджеры */
+    .top-actions .consult-messengers { gap: 8px; }
+    .top-actions .consult-label { display: none; }
+    .top-actions .btn-messenger { padding: 8px 12px; font-size: 13px; border-radius: 999px; }
+    .top-actions .btn-messenger svg { width: 18px; height: 18px; }
+
+    /* Герой (мобильная) */
+    .hero-consult .consult-messengers { width: 100%; justify-content: center; margin-top: 18px; }
+    .hero-consult .consult-label { width: 100%; text-align: center; }
+
+    /* Результаты */
+    .result-cta .consult-messengers { gap: 12px; }
+    .result-cta .btn-messenger { min-height: 48px; font-size: 15px; padding: 12px 22px; }
+
+    /* Блок ссылки на результат */
+    .share-block {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 16px; padding: 18px 20px; margin-top: 12px;
+    }
+    .share-block h3 { margin: 0 0 10px; font-size: 16px; color: var(--text); }
+    .share-link-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .share-link-input {
+      flex: 1; min-width: 200px; padding: 10px 14px; border-radius: 10px;
+      border: 1px solid var(--line); background: #fff; color: var(--text);
+      font-size: 14px; font-family: monospace;
+    }
+    .share-link-input:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
+    .btn-share { min-height: 40px; padding: 10px 16px; border-radius: 10px; border: none;
+      font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-share-copy { background: var(--gold); color: #fff; }
+    .btn-share-copy:hover { filter: brightness(1.08); }
+    .btn-share-copy.copied { background: #4caf50; }
+    .btn-share-native { background: #efe7d8; color: var(--text); }
+    .btn-share-native:hover { background: #e8dfd0; }
+
+    @media (max-width:560px) {
+      .share-link-row { flex-direction: column; }
+      .share-link-input { width: 100%; }
+      .btn-messenger { width: 100%; justify-content: center; }
+    }
+
     .btn-danger { color: #2b0f0d; background: #ffb0a8; }
     .btn-teal { color: #061b18; background: linear-gradient(135deg, #b9f4ec, #65c9bd); }
     .btn-small { min-height: 40px; padding: 10px 14px; font-size: 14px; }
@@ -823,8 +881,7 @@
           <div class="brand-subtitle">психолог психоаналитической направленности • судьбоаналитик</div>
         </div>
       </a>
-      <div class="top-actions">
-        <a class="pill" id="topTelegramLink" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться на консультацию</a>
+      <div class="top-actions" id="topMessengers">
       </div>
     </header>
 
@@ -842,7 +899,7 @@
 
             <div class="tiny-note">Тест Сонди — психоаналитическая проективная методика швейцарского врача, психиатра, судьбоаналитика Леопольда Зонди; результат считается точным только при работе со специалистом судьбоаналитиком. Результаты прохождения сохраняются и могут быть просмотрены специалистом для разбора; прохождение анонимно, если вы не указали имя.</div>
 
-            <a class="btn btn-consult hero-consult no-print" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться на консультацию к Валерии</a>
+            <div class="hero-consult no-print" id="heroMessengers"></div>
           </section>
 
           <aside class="glass hero-side">
@@ -904,8 +961,7 @@
               <h2>Валерия Майкина</h2>
               <p>Психолог психоаналитической направленности, судьбоаналитик. Работаю с тестом Сонди и помогаю найти истинные причины проблем в отношениях, на работе и со здоровьем — там, где обычные методы не дают ответа.</p>
               <p class="about-areas">Направления работы: судьбоанализ и тест Сонди, психосоматика и конверсионный синдром, работа с психотравмой и ПТСР, эриксоновский гипноз, НЛП, архетипы и жизненный стиль.</p>
-              <div class="about-actions">
-                <a class="btn btn-consult" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться на консультацию</a>
+              <div class="about-actions" id="aboutMessengers">
                 <a class="tg-channel" href="https://t.me/vau_lera" target="_blank" rel="noopener">
                   <span class="tg-icon">✈️</span>
                   <span><strong>Телеграм-канал @vau_lera</strong><br>Статьи, разборы и заметки Валерии о судьбоанализе и психологии</span>
@@ -956,7 +1012,18 @@
           </div>
           <div class="btn-row">
             <button class="btn btn-primary" id="pdfButton" type="button">Скачать PDF</button>
-            <a class="btn btn-consult" id="telegramButton" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Разобрать с Валерией</a>
+            <div id="resultsTopMessengers"></div>
+          </div>
+        </div>
+
+        <!-- Блок ссылки на результат (показывается после прохождения или при ?r=) -->
+        <div class="share-block no-print" id="shareBlock" style="display:none; max-width:980px; margin:12px auto 0;">
+          <h3>🔗 Ваша ссылка на результат</h3>
+          <p style="margin:0 0 10px; font-size:14px; color:var(--muted);">Сохраните эту ссылку, чтобы вернуться к результату в любой момент или поделиться им.</p>
+          <div class="share-link-row">
+            <input class="share-link-input" id="shareLinkInput" type="text" readonly />
+            <button class="btn-share btn-share-copy" id="shareCopyBtn" type="button">📋 Копировать</button>
+            <button class="btn-share btn-share-native" id="shareNativeBtn" type="button">📤 Поделиться</button>
           </div>
         </div>
 
@@ -988,7 +1055,7 @@
               </div>
               <div class="btn-row result-cta-buttons">
                 <button class="btn btn-primary" id="bottomPdfButton" type="button">Скачать PDF</button>
-                <a class="btn btn-consult" id="bottomTelegramButton" href="https://t.me/vau_leriya" target="_blank" rel="noopener">Записаться к Валерии Майкиной</a>
+                <div id="resultsBottomMessengers"></div>
               </div>
             </section>
           </div>
@@ -1013,6 +1080,7 @@
       siteName: "Валерия Майкина",
       specialistName: "Валерия Майкина",
       telegramUrl: "https://t.me/vau_leriya",
+      whatsappUrl: "https://wa.me/79604440677",
       interpretationApiUrl: "https://functions.yandexcloud.net/d4eknbeun02tsl1libe5",
       portraitRoot: "szondi",
       portraitExt: "webp",
@@ -1119,10 +1187,26 @@
 
     const $ = (id) => document.getElementById(id);
 
+    /* SVG-иконки мессенджеров */
+    const WA_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+    const TG_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>';
+
+    function messengerButtonsHtml(inline) {
+      const cls = inline ? "" : "btn-messenger";
+      return `<div class="consult-messengers">
+        <span class="consult-label">Записаться на консультацию:</span>
+        <a class="${cls} messenger-wa" href="${CONFIG.whatsappUrl}" target="_blank" rel="noopener">${WA_ICON}<span>WhatsApp</span></a>
+        <a class="${cls} messenger-tg" href="${CONFIG.telegramUrl}" target="_blank" rel="noopener">${TG_ICON}<span>Telegram</span></a>
+      </div>`;
+    }
+
     function init() {
-      $("topTelegramLink").href = CONFIG.telegramUrl;
-      $("telegramButton").href = CONFIG.telegramUrl;
-      $("bottomTelegramButton").href = CONFIG.telegramUrl;
+      /* Вставляем кнопки мессенджеров во все места */
+      $("topMessengers").innerHTML = messengerButtonsHtml();
+      $("heroMessengers").innerHTML = messengerButtonsHtml();
+      $("aboutMessengers").insertAdjacentHTML("afterbegin", messengerButtonsHtml());
+      $("resultsTopMessengers").innerHTML = messengerButtonsHtml();
+      $("resultsBottomMessengers").innerHTML = messengerButtonsHtml();
       const interpretationButton = $("interpretationButton");
       if (interpretationButton) {
         if (!CONFIG.interpretationApiUrl) interpretationButton.style.display = "none";
@@ -1137,6 +1221,13 @@
       $("bottomPdfButton").addEventListener("click", downloadPdf);
       window.addEventListener("hashchange", handleHash);
       handleHash();
+
+      /* Если в URL есть ?r=код — загружаем результат по ссылке */
+      const urlParams = new URLSearchParams(location.search);
+      const resultCode = urlParams.get("r");
+      if (resultCode) {
+        loadResultByCode(resultCode);
+      }
     }
 
     function handleHash() {
@@ -1422,6 +1513,8 @@
       showScreen("screen-results");
       history.replaceState(null, "", "#results");
       window.scrollTo({ top: 0, behavior: "smooth" });
+      /* Показываем ссылку на результат для текущего пользователя */
+      showShareBlock(getPersonCode());
       window.setTimeout(() => requestDeepInterpretation(), 350);
     }
 
@@ -2018,12 +2111,140 @@
       try {
         let c = localStorage.getItem("maykina_person_code");
         if (!c) {
-          c = "p-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+          /* Более длинный код для публичной ссылки — 12 случайных символов */
+          c = "p-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6) + Math.random().toString(36).slice(2, 6);
           localStorage.setItem("maykina_person_code", c);
         }
         return c;
       } catch (_) {
         return "";
+      }
+    }
+
+    /* ======================== Ссылка на результат ======================== */
+
+    function getResultShareUrl(code) {
+      const base = location.origin + location.pathname;
+      return base + "?r=" + encodeURIComponent(code);
+    }
+
+    function showShareBlock(code) {
+      const block = $("shareBlock");
+      const input = $("shareLinkInput");
+      const copyBtn = $("shareCopyBtn");
+      const nativeBtn = $("shareNativeBtn");
+      if (!block || !input) return;
+
+      input.value = getResultShareUrl(code);
+      block.style.display = "block";
+
+      /* Кнопка «Копировать» */
+      copyBtn.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(input.value);
+          copyBtn.textContent = "✓ Скопировано";
+          copyBtn.classList.add("copied");
+          setTimeout(() => { copyBtn.textContent = "📋 Копировать"; copyBtn.classList.remove("copied"); }, 2000);
+        } catch (_) {
+          input.select();
+          document.execCommand("copy");
+          copyBtn.textContent = "✓ Скопировано";
+          copyBtn.classList.add("copied");
+          setTimeout(() => { copyBtn.textContent = "📋 Копировать"; copyBtn.classList.remove("copied"); }, 2000);
+        }
+      };
+
+      /* Кнопка «Поделиться» (Web Share API — работает на мобильных) */
+      if (navigator.share) {
+        nativeBtn.style.display = "inline-flex";
+        nativeBtn.onclick = () => navigator.share({ title: "Результат теста Сонди", url: input.value }).catch(() => {});
+      } else {
+        nativeBtn.style.display = "none";
+      }
+    }
+
+    /* Загрузка результата по коду из URL (?r=код) */
+    async function loadResultByCode(code) {
+      if (!CONFIG.interpretationApiUrl || !code) return;
+
+      const block = $("shareBlock");
+      const input = $("shareLinkInput");
+      if (block) { block.style.display = "block"; if (input) input.value = "Загружаю результат…"; }
+
+      try {
+        const resp = await fetch(CONFIG.interpretationApiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "getByCode", personCode: code })
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data.error || "Не удалось загрузить результат");
+
+        const results = data.results || [];
+        if (!results.length) throw new Error("Результат не найден. Возможно, ссылка устарела.");
+
+        /* Берём последнее прохождение для этого кода */
+        const latest = results[results.length - 1];
+        const r = latest;
+
+        /* Сохранённый формат: profiles.ppp = {h: {sign, base, plus, minus, strength}}
+           Восстанавливаем в формат, ожидаемый renderResults/renderCharts:
+           profile.signs[f] = {symbol, base, plus, minus, strength}
+           counts[f] = {plus, minus, idsPlus: [], idsMinus: []} */
+        const rebuildProfile = (saved) => {
+          if (!saved) return null;
+          const signs = {};
+          const counts = {};
+          FACTORS.forEach((f) => {
+            const cell = saved[f] || {};
+            signs[f] = {
+              symbol: cell.sign || cell.base || "0",
+              base: cell.base || (cell.sign ? cell.sign[0] : "0"),
+              plus: cell.plus || 0,
+              minus: cell.minus || 0,
+              strength: cell.strength || 0,
+              label: cell.sign || cell.base || "0",
+              direction: (cell.plus || 0) > (cell.minus || 0) ? "positive" : ((cell.minus || 0) > (cell.plus || 0) ? "negative" : "open")
+            };
+            counts[f] = { plus: cell.plus || 0, minus: cell.minus || 0, idsPlus: [], idsMinus: [] };
+          });
+          return { signs, counts };
+        };
+
+        const ppp = rebuildProfile(r.profiles?.ppp);
+        const tkp = rebuildProfile(r.profiles?.tkp);
+        const ekp = rebuildProfile(r.profiles?.ekp);
+
+        state.results = {
+          client: r.client || {},
+          generatedAt: r.savedAt || r.generatedAt || new Date().toISOString(),
+          ppp,
+          tkp,
+          ekp,
+          frontCounts: ppp ? ppp.counts : null,
+          theoreticalCounts: tkp ? tkp.counts : null,
+          experimentalCounts: ekp ? ekp.counts : null,
+          dynamics: r.dynamics || null
+        };
+
+        /* Показываем интерпретацию, если она сохранена */
+        if (r.interpretation) {
+          const analysisBlock = $("localAnalysis");
+          if (analysisBlock) {
+            analysisBlock.style.display = "block";
+            analysisBlock.innerHTML = `<h2>Краткая интерпретация</h2>${markdownToHtml(stripDuplicateInterpretationHeading(r.interpretation))}`;
+          }
+        }
+
+        /* Показываем экран результатов */
+        renderResults();
+        showScreen("screen-results");
+        showShareBlock(code);
+        showToast("Результат загружен по ссылке.");
+
+      } catch (error) {
+        if (block) block.style.display = "none";
+        showToast(error.message);
       }
     }
 
