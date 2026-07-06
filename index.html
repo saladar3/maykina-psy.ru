@@ -299,55 +299,63 @@
     .btn-consult { color: #fff8ec; background: linear-gradient(135deg, #17110d, #4b2b18 54%, #8f5a2b); border: 1px solid rgba(23,17,13,.70); box-shadow: 0 22px 54px rgba(52,27,14,.32); text-shadow: 0 1px 1px rgba(0,0,0,.22); }
     .btn-consult:hover { filter: brightness(1.05); }
 
-    /* Мессенджер-кнопки (WhatsApp + Telegram) */
+    /* Мессенджер-кнопки (WhatsApp + Telegram) — сплошные фирменные цвета,
+       контрастные на любом фоне (тёмная шапка И светлый экран результатов) */
     .consult-messengers { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-    .consult-label { font-size: 15px; color: rgba(255,247,232,.85); white-space: nowrap; }
+    .consult-label { font-size: 15px; font-weight: 600; color: #fff7e8; white-space: nowrap; opacity: .9; }
+    /* Подпись на светлом фоне (экран результатов) — тёмная для контраста */
+    .result-cta .consult-label, .results-head .consult-label { color: #4a3f33; opacity: 1; }
     .btn-messenger {
       display: inline-flex; align-items: center; gap: 8px;
       min-height: 44px; padding: 10px 18px; border-radius: 12px;
-      font-size: 14px; font-weight: 600; text-decoration: none;
-      transition: transform .18s ease, filter .18s ease;
-      border: 1px solid rgba(255,255,255,.18);
-      backdrop-filter: blur(12px);
+      font-size: 14px; font-weight: 700; text-decoration: none;
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+      border: none; color: #fff;
+      box-shadow: 0 6px 16px rgba(0,0,0,.18);
     }
-    .btn-messenger:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn-messenger:hover { transform: translateY(-2px); filter: brightness(1.06); box-shadow: 0 10px 22px rgba(0,0,0,.22); }
     .btn-messenger svg { width: 20px; height: 20px; flex-shrink: 0; }
-    .btn-messenger.messenger-wa { background: rgba(37,211,102,.22); color: #a5f3c8; }
-    .btn-messenger.messenger-tg { background: rgba(68,183,236,.22); color: #93d5f5; }
+    .btn-messenger.messenger-wa { background: #25d366; }     /* фирменный зелёный WhatsApp */
+    .btn-messenger.messenger-wa:hover { background: #1fb855; }
+    .btn-messenger.messenger-tg { background: #229ED9; }     /* фирменный синий Telegram */
+    .btn-messenger.messenger-tg:hover { background: #1c87bb; }
 
     /* Шапка: компактные мессенджеры */
     .top-actions .consult-messengers { gap: 8px; }
     .top-actions .consult-label { display: none; }
-    .top-actions .btn-messenger { padding: 8px 12px; font-size: 13px; border-radius: 999px; }
+    .top-actions .btn-messenger { padding: 8px 12px; font-size: 13px; border-radius: 999px; min-height: auto; }
     .top-actions .btn-messenger svg { width: 18px; height: 18px; }
 
     /* Герой (мобильная) */
     .hero-consult .consult-messengers { width: 100%; justify-content: center; margin-top: 18px; }
     .hero-consult .consult-label { width: 100%; text-align: center; }
 
-    /* Результаты */
+    /* Результаты — кнопки крупнее */
     .result-cta .consult-messengers { gap: 12px; }
     .result-cta .btn-messenger { min-height: 48px; font-size: 15px; padding: 12px 22px; }
 
-    /* Блок ссылки на результат */
+    /* Блок ссылки на результат — адаптирован под светлый фон result-paper (#f2eadf) */
     .share-block {
-      background: var(--card); border: 1px solid var(--line);
+      background: #fff; border: 1px solid #d9cdb8;
       border-radius: 16px; padding: 18px 20px; margin-top: 12px;
+      box-shadow: 0 6px 18px rgba(80,55,25,.08);
     }
-    .share-block h3 { margin: 0 0 10px; font-size: 16px; color: var(--text); }
+    .share-block h3 { margin: 0 0 6px; font-size: 17px; color: #24201d; }
+    .share-block p { color: #5f554c; }
     .share-link-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .share-link-input {
-      flex: 1; min-width: 200px; padding: 10px 14px; border-radius: 10px;
-      border: 1px solid var(--line); background: #fff; color: var(--text);
-      font-size: 14px; font-family: monospace;
+      flex: 1; min-width: 200px; padding: 11px 14px; border-radius: 10px;
+      border: 1px solid #d9cdb8; background: #fbf7f0; color: #2c2620;
+      font-size: 14px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
     }
-    .share-link-input:focus { outline: 2px solid var(--gold); border-color: var(--gold); }
-    .btn-share { min-height: 40px; padding: 10px 16px; border-radius: 10px; border: none;
-      font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
-    .btn-share-copy { background: var(--gold); color: #fff; }
-    .btn-share-copy:hover { filter: brightness(1.08); }
+    .share-link-input:focus { outline: 2px solid #b08946; border-color: #b08946; }
+    .btn-share { min-height: 42px; padding: 11px 16px; border-radius: 10px; border: none;
+      font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      transition: filter .18s ease, transform .18s ease; }
+    .btn-share:hover { filter: brightness(1.06); transform: translateY(-1px); }
+    .btn-share-copy { background: #b08946; color: #fff; }
     .btn-share-copy.copied { background: #4caf50; }
-    .btn-share-native { background: #efe7d8; color: var(--text); }
+    .btn-share-native { background: #efe7d8; color: #2c2620; border: 1px solid #d9cdb8; }
     .btn-share-native:hover { background: #e8dfd0; }
 
     @media (max-width:560px) {
