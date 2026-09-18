@@ -1,4 +1,12 @@
 User-agent: *
 Allow: /
 
+# Кабинет специалиста — не для поиска.
+Disallow: /admin.html
+
+# Страницы с результатами конкретных людей (?r=код) содержат персональные данные.
+# Их не должно быть в индексе ни при каких условиях.
+Disallow: /*?r=
+Disallow: /*&r=
+
 Sitemap: https://maykina-psy.ru/sitemap.xml
