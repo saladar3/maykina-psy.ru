@@ -4,12 +4,46 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Тест Сонди онлайн — Валерия Майкина</title>
-  <meta name="description" content="Тест Сонди онлайн: быстрый выбор портретов, графики профилей, PDF и запись на консультацию к Валерии Майкиной." />
+  <meta name="description" content="Тест Сонди онлайн: выберите портреты за 5 минут и получите подробный разбор своего профиля бесплатно. Психолог и судьбоаналитик Валерия Майкина." />
   <meta name="theme-color" content="#12100e" />
+  <link rel="canonical" href="https://maykina-psy.ru/" />
 
-  <!-- PDF: если CDN недоступен, кнопка PDF переключится на обычную печать страницы. -->
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- КАРТОЧКА ДЛЯ МЕССЕНДЖЕРОВ И СОЦСЕТЕЙ.
+       Без этих строк ссылка на сайт отправлялась в Telegram, WhatsApp и ВК
+       голым текстом, без картинки и описания. Люди такие ссылки почти не открывают,
+       а значит механика «поделиться результатом» не работала вообще. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Валерия Майкина" />
+  <meta property="og:locale" content="ru_RU" />
+  <meta property="og:url" content="https://maykina-psy.ru/" />
+  <meta property="og:title" content="Тест Сонди: какое лицо вам неприятнее всего?" />
+  <meta property="og:description" content="48 портретов, 5 минут — и подробный разбор того, что вы держите внутри. Бесплатно." />
+  <meta property="og:image" content="https://maykina-psy.ru/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Тест Сонди онлайн — портреты методики" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Тест Сонди: какое лицо вам неприятнее всего?" />
+  <meta name="twitter:description" content="48 портретов, 5 минут — и подробный разбор того, что вы держите внутри. Бесплатно." />
+  <meta name="twitter:image" content="https://maykina-psy.ru/og-image.jpg" />
+
+  <!-- PDF-библиотеки (html2canvas + jsPDF) весят около 600 КБ и раньше грузились
+       на КАЖДОМ заходе, даже если человек ни разу не нажмёт «Скачать PDF».
+       Теперь они подгружаются по клику на кнопку — см. ensurePdfLibs() ниже.
+       Если CDN недоступен, кнопка переключится на обычную печать страницы. -->
+
+  <!-- ЯНДЕКС.МЕТРИКА — счётчик 112884229 («Валерия Майкина — тест Сонди»).
+       Вебвизор выключен намеренно: он записывает сеансы, в том числе текст,
+       который люди вводят в поле запроса, а это чувствительные данные. -->
+  <script type="text/javascript">
+    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+    m[i].l=1*new Date();
+    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})
+    (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+    ym(112884229, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:false });
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/112884229" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 
   <style>
     :root {
@@ -279,6 +313,63 @@
     .checkbox input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); }
 
     .btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 16px; }
+
+    /* Блок «продолжение разбора в Telegram» */
+    .gate-block { position: relative; margin-top: -46px; padding-top: 46px; }
+    .gate-fade { position: absolute; top: 0; left: 0; right: 0; height: 46px;
+      background: linear-gradient(to bottom, rgba(242,234,223,0), var(--paper)); pointer-events: none; }
+    .gate-body { border: 1px solid rgba(36,29,23,.14); border-radius: 20px;
+      padding: 24px 26px; background: linear-gradient(160deg, #fff9ee, #f4ead9);
+      text-align: center; }
+    .gate-kicker { font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+      color: #9b7830; font-weight: 700; margin-bottom: 8px; }
+    .gate-body h3 { margin: 0 0 10px; font-size: 21px; color: #241d17; letter-spacing: -.02em; }
+    .gate-body p { margin: 0 0 12px; font-size: 15px; line-height: 1.6; color: #4a3f33; }
+    .gate-why { font-size: 13.5px !important; color: #6b5f52 !important; }
+    .gate-btn { display: inline-flex; align-items: center; gap: 10px; margin-top: 6px;
+      text-decoration: none; }
+    .gate-btn svg { width: 19px; height: 19px; }
+    .gate-note { margin-top: 12px; font-size: 12.5px; color: #7d7166; }
+    @media (max-width: 560px) {
+      .gate-body { padding: 20px 18px; }
+      .gate-body h3 { font-size: 19px; }
+    }
+
+    /* Блок согласия на обработку персональных данных */
+    .consent-box { margin-top: 14px; padding: 14px 16px; border: 1px solid var(--line);
+      border-radius: 16px; background: rgba(255,255,255,.05); }
+    .consent-row { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px;
+      font-size: 13px; line-height: 1.5; color: var(--muted); cursor: pointer; }
+    .consent-row:last-of-type { margin-bottom: 0; }
+    .consent-row input { margin: 2px 0 0; width: 17px; height: 17px; flex: 0 0 auto;
+      accent-color: var(--accent); cursor: pointer; }
+    .consent-row a { color: var(--accent); }
+    .consent-row strong { color: var(--text); }
+    .consent-note { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
+      font-size: 12px; line-height: 1.5; color: rgba(255,247,232,.55); }
+    .consent-box.consent-missing { border-color: var(--danger); }
+
+    /* Блок со страницами-разборами: точки входа из поиска */
+    .kb-block { margin-top: 28px; }
+    .kb-block h2 { font-size: 22px; letter-spacing: -.025em; margin: 0 0 6px; }
+    .kb-block > p { color: var(--muted); font-size: 15px; margin: 0 0 18px; max-width: 640px; }
+    .kb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+    .kb-grid a { display: block; padding: 13px 15px; border-radius: 15px; text-decoration: none;
+      border: 1px solid var(--line); background: rgba(255,255,255,.05); transition: background .15s; }
+    .kb-grid a:hover { background: rgba(255,255,255,.1); }
+    .kb-grid b { display: block; font-size: 15px; color: var(--text); margin-bottom: 3px; }
+    .kb-grid span { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+    .kb-main { margin-top: 12px; }
+    .kb-main a { color: var(--accent); font-size: 15px; }
+
+    /* Подвал с юридическими документами */
+    .site-footer { margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+      display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center;
+      justify-content: center; font-size: 13px; color: rgba(255,247,232,.55); }
+    .site-footer a { color: rgba(255,247,232,.72); text-decoration: none; }
+    .site-footer a:hover { color: var(--accent); }
+    .site-footer .footer-disclaimer { flex-basis: 100%; text-align: center;
+      font-size: 12px; line-height: 1.55; color: rgba(255,247,232,.42); margin-top: 4px; }
     .btn {
       border: 0;
       border-radius: 999px;
@@ -953,6 +1044,23 @@
                   <textarea id="clientContext" placeholder="Например: отношения, работа, тревога, выбор, конфликт, обучение, супервизия..."></textarea>
                 </label>
                 <div class="soft-note">Можно проходить анонимно. Но если добавить возраст, статус и короткий контекст, финальный разбор будет точнее.</div>
+
+                <!-- СОГЛАСИЕ НА ОБРАБОТКУ ПЕРСОНАЛЬНЫХ ДАННЫХ.
+                     Две отдельные галочки — это не перестраховка: результат теста и его
+                     интерпретация относятся к специальным категориям персональных данных
+                     (ст. 10 152-ФЗ), а для них закон требует отдельного согласия. -->
+                <div class="consent-box">
+                  <label class="consent-row">
+                    <input type="checkbox" id="consentPd" />
+                    <span>Я даю <a href="/consent.html" target="_blank" rel="noopener">согласие на обработку персональных данных</a> и принимаю <a href="/privacy.html" target="_blank" rel="noopener">Политику</a> и <a href="/terms.html" target="_blank" rel="noopener">Пользовательское соглашение</a>.</span>
+                  </label>
+                  <label class="consent-row">
+                    <input type="checkbox" id="consentSpecial" />
+                    <span>Я даю отдельное согласие на обработку <strong>специальных категорий</strong> персональных данных — результата методики и его интерпретации.</span>
+                  </label>
+                  <div class="consent-note">Мне есть 18 лет. Я понимаю, что результат носит информационный характер, не является медицинской диагностикой и не заменяет консультацию специалиста.</div>
+                </div>
+
                 <div class="btn-row">
                   <button class="btn btn-primary" type="submit">Начать тест</button>
                 </div>
@@ -989,6 +1097,25 @@
             <a class="cert-item" href="about/cert-nlp.webp" target="_blank" rel="noopener"><img src="about/cert-nlp.webp" alt="Сертификат: НЛП-практик" loading="lazy" /><span>НЛП-практик (психодинамический подход)</span></a>
             <a class="cert-item" href="about/cert-arhetipy.webp" target="_blank" rel="noopener"><img src="about/cert-arhetipy.webp" alt="Сертификат: архетипы и жизненный стиль" loading="lazy" /><span>Архетипы и жизненный стиль</span></a>
           </div>
+        </section>
+
+        <!-- Разборы факторов: отдельные страницы под поисковые запросы.
+             Ссылки отсюда нужны, чтобы поисковик их нашёл и связал с главной. -->
+        <section class="glass about-block kb-block no-pdf">
+          <div class="eyebrow">Разбор методики</div>
+          <h2>Что означают факторы теста Сонди</h2>
+          <p>Восемь факторов, знаки «плюс», «минус», «плюс-минус» и ноль — и что каждый из них говорит о человеке. Можно прочитать до теста или вернуться после, чтобы разобраться в своём результате.</p>
+          <div class="kb-grid">
+            <a href="/faktor-h.html"><b>h</b><span>нежность и близость</span></a>
+            <a href="/faktor-s.html"><b>s</b><span>напор и агрессия</span></a>
+            <a href="/faktor-e.html"><b>e</b><span>гнев и вина</span></a>
+            <a href="/faktor-hy.html"><b>hy</b><span>демонстрация себя</span></a>
+            <a href="/faktor-k.html"><b>k</b><span>контроль и право иметь</span></a>
+            <a href="/faktor-p.html"><b>p</b><span>право быть собой</span></a>
+            <a href="/faktor-d.html"><b>d</b><span>поиск нового</span></a>
+            <a href="/faktor-m.html"><b>m</b><span>привязанность к контакту</span></a>
+          </div>
+          <p class="kb-main"><a href="/rasshifrovka.html">Как читать свой профиль целиком: векторы, три профиля и знаки напряжения →</a></p>
         </section>
       </section>
 
@@ -1027,7 +1154,7 @@
         <!-- Блок ссылки на результат (показывается после прохождения или при ?r=) -->
         <div class="share-block no-print" id="shareBlock" style="display:none; max-width:980px; margin:12px auto 0;">
           <h3>🔗 Ваша ссылка на результат</h3>
-          <p style="margin:0 0 10px; font-size:14px; color:var(--muted);">Сохраните эту ссылку, чтобы вернуться к результату в любой момент или поделиться им.</p>
+          <p style="margin:0 0 10px; font-size:14px; color:var(--muted);">Сохраните её, чтобы вернуться к своим графикам в любой момент. Или покажите близкому человеку — иногда со стороны видно то, чего не видно самому.</p>
           <div class="share-link-row">
             <input class="share-link-input" id="shareLinkInput" type="text" readonly />
             <button class="btn-share btn-share-copy" id="shareCopyBtn" type="button">📋 Копировать</button>
@@ -1071,6 +1198,17 @@
 
       </section>
     </main>
+
+    <footer class="site-footer no-print no-pdf">
+      <a href="/privacy.html">Политика обработки данных</a>
+      <a href="/consent.html">Согласие на обработку</a>
+      <a href="/terms.html">Пользовательское соглашение</a>
+      <div class="footer-disclaimer">
+        Материалы сайта носят информационный характер и не являются медицинской диагностикой.
+        Результат методики не устанавливает диагноз и не заменяет очную консультацию специалиста.
+        Сайт не оказывает экстренную психологическую помощь — при острых состояниях обращайтесь по телефону 112.
+      </div>
+    </footer>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -1099,6 +1237,14 @@
       assetsVersion: "2026-06-23-store-1",
       paidMode: false,
       paymentUrl: "",
+      // ЗАХВАТ КОНТАКТА.
+      // true  — на сайте показываются «Контекст» и «Заключение», остальное человек
+      //         забирает в Telegram у Алисы (она пришлёт полный текст по коду теста).
+      //         Так у вас появляется контакт человека в самый горячий момент.
+      // false — полный разбор сразу на сайте, как было раньше.
+      // Меняется одним словом: чтобы включить захват контакта, поставьте true.
+      // Сейчас ВЫКЛЮЧЕНО по решению владельца — полный разбор отдаётся на сайте бесплатно.
+      gateInterpretation: false,
       pdfPrefix: "maykina-szondi-result",
       showPortraitNumbers: false,
       // РЕЖИМ ПРОВЕРКИ ПОРЯДКА ПОРТРЕТОВ.
@@ -1185,6 +1331,7 @@
     const state = {
       startedAt: null,
       client: {},
+      consent: null,
       stepIndex: 0,
       locked: false,
       selections: Array.from({ length: 6 }, () => ({
@@ -1197,6 +1344,30 @@
     };
 
     const $ = (id) => document.getElementById(id);
+
+    /* ======================== Аналитика ========================
+       Отправляет цель в Яндекс.Метрику, если счётчик подключён.
+       Пока номер счётчика не вставлен в шапке страницы, вызовы просто
+       ничего не делают — ошибок не будет.
+
+       Цели, которые нужно создать в интерфейсе Метрики (тип «JavaScript-событие»):
+         test_start        — человек начал тест
+         test_complete     — дошёл до конца всех 18 экранов
+         interpretation_ok — дождался готовой интерпретации
+         messenger_click   — нажал «Записаться» (WhatsApp или Telegram)
+         pdf_download      — скачал PDF
+         share_copy        — скопировал ссылку на свой результат
+    */
+    const METRIKA_ID = 112884229; /* счётчик Яндекс.Метрики */
+
+    function trackGoal(goal, params) {
+      try {
+        if (typeof window.ym === "function" && METRIKA_ID) {
+          window.ym(METRIKA_ID, "reachGoal", goal, params || {});
+        }
+        if (window.__trackDebug) console.log("[цель]", goal, params || "");
+      } catch (_) { /* аналитика никогда не должна ломать сайт */ }
+    }
 
     /* SVG-иконки мессенджеров */
     const WA_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
@@ -1244,6 +1415,11 @@
         interpretationButton.addEventListener("click", requestDeepInterpretation);
       }
       $("clientForm").addEventListener("submit", onStart);
+      /* Один обработчик на всю страницу: ловит клики по любым кнопкам записи. */
+      document.addEventListener("click", (e) => {
+        const link = e.target.closest && e.target.closest(".messenger-wa, .messenger-tg");
+        if (link) trackGoal("messenger_click", { channel: link.classList.contains("messenger-wa") ? "whatsapp" : "telegram" });
+      });
       const resetButton = $("resetButton");
       if (resetButton) resetButton.addEventListener("click", resetAll);
       const topResetButton = $("topResetButton");
@@ -1266,14 +1442,41 @@
       if (location.hash === "#start") showScreen("screen-start");
     }
 
+    /* Версия текста согласия. Меняйте её при каждой правке consent.html —
+       тогда в сохранённом результате будет видно, с какой именно редакцией согласился человек. */
+    const CONSENT_VERSION = "1.0";
+
+    /* Проверяет обе галочки согласия. Без них тест не начинается. */
+    function checkConsent() {
+      const pd = $("consentPd");
+      const special = $("consentSpecial");
+      if (!pd || !special) return true; /* если блок убран — не блокируем */
+      if (pd.checked && special.checked) {
+        pd.closest(".consent-box").classList.remove("consent-missing");
+        return true;
+      }
+      pd.closest(".consent-box").classList.add("consent-missing");
+      showToast("Чтобы пройти тест, отметьте оба согласия на обработку данных.");
+      pd.closest(".consent-box").scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+
     function onStart(event) {
       event.preventDefault();
+      if (!checkConsent()) return;
+      state.consent = {
+        personalData: true,
+        specialCategories: true,
+        version: CONSENT_VERSION,
+        acceptedAt: new Date().toISOString()
+      };
       state.client = readClientForm();
       state.startedAt = new Date().toISOString();
       state.stepIndex = 0;
       state.locked = false;
       state.selections = Array.from({ length: 6 }, () => ({ frontLike: [], frontDislike: [], backLike: [], backDislike: [] }));
       state.results = null;
+      trackGoal("test_start");
       showScreen("screen-test");
       renderTest();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1540,6 +1743,9 @@
 
     function finishTest() {
       state.results = buildResults();
+      trackGoal("test_complete", {
+        seconds: state.startedAt ? Math.round((Date.now() - new Date(state.startedAt).getTime()) / 1000) : 0
+      });
       renderResults();
       showScreen("screen-results");
       history.replaceState(null, "", "#results");
@@ -2077,6 +2283,65 @@
       return base.slice(0, 10);
     }
 
+    /* ================= Разделение разбора: бесплатная часть и продолжение =================
+       Интерпретация приходит в Markdown с разделами:
+       ### Контекст → ### Заключение → ### Векторный разбор → ### Комплементарный анализ → ### Вывод
+       На сайте оставляем первые два — они самые цепляющие. Остальное человек
+       забирает в Telegram, и это единственный момент, когда он готов оставить контакт. */
+    const GATE_AFTER_HEADINGS = ["векторный разбор", "комплементарный", "вывод"];
+
+    function splitInterpretation(md) {
+      const lines = String(md || "").split("\n");
+      let cutAt = -1;
+      for (let i = 0; i < lines.length; i++) {
+        const m = lines[i].match(/^#{1,6}\s*(.+?)\s*$/);
+        if (!m) continue;
+        const title = m[1].toLowerCase();
+        if (GATE_AFTER_HEADINGS.some((h) => title.includes(h))) { cutAt = i; break; }
+      }
+      if (cutAt <= 0) return { free: md, rest: "" };
+      return { free: lines.slice(0, cutAt).join("\n").trim(), rest: lines.slice(cutAt).join("\n").trim() };
+    }
+
+    /* Блок, который встаёт на месте скрытой части. */
+    function buildGateHtml(personCode) {
+      const bot = CONFIG.botUsername || "";
+      const href = bot
+        ? `https://t.me/${bot}?start=${encodeURIComponent("test_" + (personCode || getPersonCode()))}`
+        : CONFIG.telegramUrl;
+      return `
+        <div class="gate-block">
+          <div class="gate-fade"></div>
+          <div class="gate-body">
+            <div class="gate-kicker">Продолжение разбора</div>
+            <h3>Дальше — самая конкретная часть</h3>
+            <p>Векторный разбор, теневой профиль и вывод о том, есть ли у вас сейчас энергия что-то менять. Это ещё примерно столько же текста, сколько вы прочитали.</p>
+            <p class="gate-why">Полный текст присылает Алиса — ассистентка Валерии. Она уже знает ваш результат, повторно проходить тест не нужно.</p>
+            <a class="btn btn-primary gate-btn" href="${href}" target="_blank" rel="noopener" id="gateTelegramBtn">
+              ${TG_ICON}<span>Получить полный разбор в Telegram</span>
+            </a>
+            <div class="gate-note">Бесплатно. Ссылка откроет чат — разбор придёт сразу.</div>
+          </div>
+        </div>`;
+    }
+
+    /* Показывает интерпретацию: целиком или с обрезкой — в зависимости от настройки. */
+    function renderInterpretation(analysisBlock, aiText, personCode) {
+      const clean = stripDuplicateInterpretationHeading(aiText);
+      if (!CONFIG.gateInterpretation) {
+        analysisBlock.innerHTML = `<h2>Краткая интерпретация</h2>${markdownToHtml(clean)}`;
+        return;
+      }
+      const { free, rest } = splitInterpretation(clean);
+      if (!rest) {
+        analysisBlock.innerHTML = `<h2>Краткая интерпретация</h2>${markdownToHtml(free)}`;
+        return;
+      }
+      analysisBlock.innerHTML = `<h2>Краткая интерпретация</h2>${markdownToHtml(free)}${buildGateHtml(personCode)}`;
+      const btn = $("gateTelegramBtn");
+      if (btn) btn.addEventListener("click", () => trackGoal("gate_telegram_click"));
+    }
+
     async function requestDeepInterpretation() {
       if (!state.results) return;
 
@@ -2123,10 +2388,10 @@
         const data = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(data.error || `Ошибка интерпретации: ${response.status}`);
         const aiText = stripDuplicateInterpretationHeading(data.text || data.interpretation || "Не удалось сформировать текст интерпретации.");
-        const aiHtml = markdownToHtml(aiText);
         // Показываем ТОЛЬКО живой текст ИИ. Сухую шаблонную сводку (buildLocalAnalysisHtml)
         // больше НЕ дописываем — именно она делала результат «сухим по определениям».
-        analysisBlock.innerHTML = `<h2>Краткая интерпретация</h2>${aiHtml}`;
+        renderInterpretation(analysisBlock, aiText, getPersonCode());
+        trackGoal("interpretation_ok");
         showToast("Краткая интерпретация готова. Ее можно скачать вместе с PDF.");
       } catch (error) {
         analysisBlock.innerHTML = `<h2>Краткая интерпретация</h2><p>Не удалось получить интерпретацию ИИ: ${escapeHtml(error.message)}</p><p class="muted">Ниже оставлена рабочая сводка по рассчитанным профилям, чтобы результат можно было сохранить в PDF.</p>${buildLocalAnalysisHtml()}`;
@@ -2175,12 +2440,14 @@
       copyBtn.onclick = async () => {
         try {
           await navigator.clipboard.writeText(input.value);
+          trackGoal("share_copy");
           copyBtn.textContent = "✓ Скопировано";
           copyBtn.classList.add("copied");
           setTimeout(() => { copyBtn.textContent = "📋 Копировать"; copyBtn.classList.remove("copied"); }, 2000);
         } catch (_) {
           input.select();
           document.execCommand("copy");
+          trackGoal("share_copy");
           copyBtn.textContent = "✓ Скопировано";
           copyBtn.classList.add("copied");
           setTimeout(() => { copyBtn.textContent = "📋 Копировать"; copyBtn.classList.remove("copied"); }, 2000);
@@ -2269,7 +2536,7 @@
           const analysisBlock = $("localAnalysis");
           if (analysisBlock) {
             analysisBlock.style.display = "block";
-            analysisBlock.innerHTML = `<h2>Краткая интерпретация</h2>${markdownToHtml(stripDuplicateInterpretationHeading(r.interpretation))}`;
+            renderInterpretation(analysisBlock, r.interpretation, code);
           }
         }
 
@@ -2306,6 +2573,8 @@
         version: "1.6.6",
         client: r.client,
         personCode: getPersonCode(),
+        /* Фиксация согласия — оператор обязан уметь доказать, что оно было получено. */
+        consent: state.consent || { personalData: false, specialCategories: false, version: CONSENT_VERSION },
         profiles,
         dynamics: r.dynamics,
         changeEnergy: buildChangeEnergyForDeepSeek(r.dynamics),
@@ -2438,9 +2707,51 @@
       return text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     }
 
+    /* Подгружает один внешний скрипт и ждёт его готовности. */
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const existing = document.querySelector(`script[src="${src}"]`);
+        if (existing) {
+          if (existing.dataset.loaded === "1") return resolve();
+          existing.addEventListener("load", () => resolve());
+          existing.addEventListener("error", reject);
+          return;
+        }
+        const el = document.createElement("script");
+        el.src = src;
+        el.async = true;
+        el.addEventListener("load", () => { el.dataset.loaded = "1"; resolve(); });
+        el.addEventListener("error", reject);
+        document.head.appendChild(el);
+      });
+    }
+
+    /* PDF-библиотеки грузятся только когда человек реально нажал «Скачать PDF».
+       Это экономит около 600 КБ трафика на каждом заходе. */
+    let pdfLibsPromise = null;
+    function ensurePdfLibs() {
+      if (window.html2canvas && window.jspdf) return Promise.resolve();
+      if (!pdfLibsPromise) {
+        pdfLibsPromise = Promise.all([
+          loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"),
+          loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js")
+        ]).catch((e) => { pdfLibsPromise = null; throw e; });
+      }
+      return pdfLibsPromise;
+    }
+
     async function downloadPdf() {
       const content = $("resultContent");
       if (!content) return;
+
+      trackGoal("pdf_download");
+
+      if (!window.html2canvas || !window.jspdf) {
+        try {
+          showToast("Готовлю PDF, секунду…");
+          await ensurePdfLibs();
+        } catch (_) { /* ниже сработает запасной вариант с печатью */ }
+      }
 
       if (!window.html2canvas || !window.jspdf) {
         showToast("Библиотека PDF не загрузилась. Открою стандартную печать — там можно выбрать ‘Сохранить как PDF’. ");
