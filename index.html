@@ -348,6 +348,18 @@
     .consent-note { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line);
       font-size: 12px; line-height: 1.5; color: rgba(255,247,232,.55); }
     .consent-box.consent-missing { border-color: var(--danger); }
+    .char-count { display: block; text-align: right; font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .rate-box { margin: 0 0 24px; padding: 16px 18px; border: 1px solid rgba(36,32,29,.14); border-radius: 16px; background: #fff9ee; color: #24201d; }
+    .rate-q { font-weight: 700; margin-bottom: 10px; }
+    .rate-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rate-btns button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(36,32,29,.25); background: #fff; font-size: 17px; font-weight: 700; cursor: pointer; color: #24201d; }
+    .rate-btns button:hover, .rate-btns button.on { background: #d6ad66; color: #24201d; border-color: #b8914f; }
+    .rate-scale { display: flex; justify-content: space-between; max-width: 252px; font-size: 12px; color: #6a6057; margin-top: 6px; }
+    .rate-comment { margin-top: 12px; }
+    .rate-comment textarea { width: 100%; min-height: 70px; box-sizing: border-box; border-radius: 10px; border: 1px solid rgba(36,32,29,.2); padding: 10px; font: inherit; color: #24201d; background: #fff; }
+    .rate-comment button { margin-top: 8px; }
+    .rate-thanks { margin-top: 10px; color: #6a6057; }
+    .pdf-exporting .rate-box { display: none; }
 
     /* Блок со страницами-разборами: точки входа из поиска */
     .kb-block { margin-top: 28px; }
@@ -1041,7 +1053,8 @@
                   </label>
                 </div>
                 <label class="field">Запрос или контекст, если есть
-                  <textarea id="clientContext" placeholder="Например: отношения, работа, тревога, выбор, конфликт, обучение, супервизия..."></textarea>
+                  <textarea id="clientContext" maxlength="1500" placeholder="Например: отношения, работа, тревога, выбор, конфликт, обучение, супервизия..."></textarea>
+                  <span class="char-count" id="clientContextCount">0 / 1500</span>
                 </label>
                 <div class="soft-note">Можно проходить анонимно. Но если добавить возраст, статус и короткий контекст, финальный разбор будет точнее.</div>
 
@@ -1415,6 +1428,13 @@
         interpretationButton.addEventListener("click", requestDeepInterpretation);
       }
       $("clientForm").addEventListener("submit", onStart);
+      const ctxField = $("clientContext");
+      const ctxCount = $("clientContextCount");
+      if (ctxField && ctxCount) {
+        const upd = () => { ctxCount.textContent = `${ctxField.value.length} / 1500`; };
+        ctxField.addEventListener("input", upd);
+        upd();
+      }
       /* Один обработчик на всю страницу: ловит клики по любым кнопкам записи. */
       document.addEventListener("click", (e) => {
         const link = e.target.closest && e.target.closest(".messenger-wa, .messenger-tg");
@@ -2363,10 +2383,10 @@
       }
 
       analysisBlock.style.display = "block";
-      analysisBlock.innerHTML = `<h2>Идет анализ ИИ</h2><p class="muted">Интерпретация формируется автоматически.</p><div class="ai-timer"><span class="ai-timer-label" id="aiTimerLabel">Интерпретация будет готова через</span><span class="ai-clock" id="aiClock">2:00</span></div>`;
+      analysisBlock.innerHTML = `<h2>Идет анализ ИИ</h2><p class="muted">Интерпретация формируется автоматически.</p><div class="ai-timer"><span class="ai-timer-label" id="aiTimerLabel">Интерпретация будет готова через</span><span class="ai-clock" id="aiClock">1:00</span></div>`;
 
       const aiTimerStart = Date.now();
-      const aiTimerEstimate = 120;
+      const aiTimerEstimate = 60;
       const aiClockEl = $("aiClock");
       const aiTimerLabelEl = $("aiTimerLabel");
       const aiTimerInterval = window.setInterval(() => {
@@ -2391,6 +2411,7 @@
         // Показываем ТОЛЬКО живой текст ИИ. Сухую шаблонную сводку (buildLocalAnalysisHtml)
         // больше НЕ дописываем — именно она делала результат «сухим по определениям».
         renderInterpretation(analysisBlock, aiText, getPersonCode());
+        showRateBox(analysisBlock, getPersonCode());
         trackGoal("interpretation_ok");
         showToast("Краткая интерпретация готова. Ее можно скачать вместе с PDF.");
       } catch (error) {
@@ -2403,6 +2424,52 @@
           button.textContent = old;
         }
       }
+    }
+
+    /* ======================== Оценка точности разбора ======================== */
+    /* Человек ставит 1–5 и (по желанию) пишет, что показалось неточным.
+       Оценка сохраняется в его же результат — Валерия видит её в кабинете. */
+    function showRateBox(analysisBlock, personCode) {
+      if (!personCode || !CONFIG.interpretationApiUrl) return;
+      const old = $("rateBox");
+      if (old) old.remove();
+      const box = document.createElement("div");
+      box.className = "rate-box";
+      box.id = "rateBox";
+      box.innerHTML = `
+        <div class="rate-q">Насколько точно разбор описывает вас?</div>
+        <div class="rate-btns">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-rate="${n}" aria-label="Оценка ${n} из 5">${n}</button>`).join("")}</div>
+        <div class="rate-scale"><span>совсем не про меня</span><span>точно про меня</span></div>
+        <div class="rate-comment" hidden>
+          <textarea id="rateComment" maxlength="1000" placeholder="Что показалось неточным или, наоборот, попало в точку? (необязательно)"></textarea>
+          <button type="button" class="btn btn-primary" id="rateSend">Отправить</button>
+        </div>
+        <div class="rate-thanks" hidden>Спасибо! Это помогает делать разборы точнее.</div>`;
+      analysisBlock.insertAdjacentElement("afterend", box);
+      let current = 0;
+      const send = async (withComment) => {
+        try {
+          await fetch(CONFIG.interpretationApiUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "rate", personCode, rating: current, comment: withComment ? ($("rateComment").value || "") : "" })
+          });
+        } catch (_) { /* оценка — не критично */ }
+      };
+      box.querySelectorAll("[data-rate]").forEach((b) => b.addEventListener("click", () => {
+        current = Number(b.dataset.rate);
+        box.querySelectorAll("[data-rate]").forEach((x) => x.classList.toggle("on", Number(x.dataset.rate) <= current));
+        box.querySelector(".rate-comment").hidden = false;
+        box.querySelector(".rate-thanks").hidden = false;
+        trackGoal("interpretation_rating", { rating: current });
+        send(false);
+      }));
+      box.querySelector("#rateSend").addEventListener("click", () => {
+        if (!current) return;
+        send(true);
+        box.querySelector(".rate-comment").hidden = true;
+        box.querySelector(".rate-thanks").textContent = "Спасибо за подробный отзыв!";
+      });
     }
 
     function getPersonCode() {
@@ -2565,8 +2632,6 @@
         tkp: compactProfile(r.tkp),
         ekp: compactProfile(r.ekp)
       };
-      const systemPrompt = buildSystemPromptForDeepSeek();
-      const prompt = buildUserPromptForDeepSeek(r, profiles);
 
       return {
         app: "maykina-psy-szondi",
@@ -2583,15 +2648,8 @@
           interpretBackAndExperimental: profiles.ppp.k.base === "-",
           moneyContext: isMoneyContext(r.client?.context)
         },
-        vectorSummary: vectorSummary(r.ppp),
-        rawSelections: r.rawSelections,
-        systemPrompt,
-        prompt,
-        aiPrompt: prompt,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: prompt }
-        ]
+        vectorSummary: vectorSummary(r.ppp)
+        /* Инструкция для нейросети живёт только в облачной функции — в коде страницы её нет. */
       };
     }
 
@@ -2605,68 +2663,6 @@
           ? `Будущее победило со счетом ${dyn.shadow}:${dyn.front}. Обязательно скажи клиенту в стиле судьбоаналитика: энергия на перемены есть, человек не только понимает проблему, но и может начать менять сценарий.`
           : `Будущее не победило. Обязательно скажи клиенту: человек скорее предпочтет ничего не менять и оставит все как есть, даже если понимает, в чем проблема.`
       };
-    }
-
-    function buildSystemPromptForDeepSeek() {
-      return `Ты — судьбоаналитик. Ты пишешь живую интерпретацию теста Сонди для клиента психолога Валерии Майкиной. Это не учебник, не гороскоп и не список определений. Это разговор, после которого человек думает: «вот это да… откуда вы это про меня знаете?». Ты будто видишь человека насквозь по его профилю и говоришь ему правду о том, что у него внутри — то, что он сам чувствует, но никому не говорил. Задача текста: человек должен узнать себя, поразиться точности, почувствовать, что его наконец поняли, загореться — и захотеть разобрать это глубже с Валерией.
-
-ЯЗЫК И ТОН. По-русски, на «ты». Тепло, но прямо и проницательно. Говори как человек, который видел это много раз: «по профилю видно…», «вот что на самом деле происходит…», «ты ведь и сам это чувствуешь…», «здесь уже назревает…». Уверенно, без воды, без «возможно» и «мне кажется» в каждой фразе, без лести и без унижения. Никогда не пиши «я ИИ».
-
-ФОРМАТ. Пиши сплошным живым текстом, короткими ёмкими абзацами. НЕ используй заголовки и разделы (никаких «##», «Контекст», «Вывод», «Векторный разбор» и т. п.) — заголовки убивают эффект живого разговора. И НИКОГДА не вставляй готовые шаблонные определения факторов и не перечисляй «какой показатель за что отвечает» — это мёртвый текст. Каждая фраза должна звучать как сказанное живым проницательным человеком именно про этого клиента, а не вставленное из методички.
-
-ЧТО ОБЯЗАТЕЛЬНО СДЕЛАТЬ:
-1) С первой же строки — удар узнавания. Назови главный внутренний конфликт человека: не то, как он себя подаёт, а что под этим; то, что он чувствует, но не проговаривает вслух. Это момент «вот это про меня».
-2) Покажи то, что человек прячет даже от себя. Если в переднем профиле k со знаком «−» — обязательно скажи прямо «ты вытесняешь…» и назови конкретно что именно (это видно по заднему профилю), и мягко покажи, в какой сценарий это может развернуться. Задний профиль тогда читай как вытесненное и неосознаваемое (так же, как передний, но с оговоркой, что человек этого в себе не признаёт), а экспериментальный профиль — как предполагаемое будущее: «так может быть, если пойти за тем, что вытеснено» (это предположение, не приговор). Если же −k в переднем профиле НЕТ — задний и экспериментальный профиль не разворачивай, используй их только для вывода об энергии на перемены.
-3) Дай один «факт-удар» — самую точную и неудобную правду о том, что с ним происходит на самом деле. Резко и точно, но без оскорблений и без обесценивания.
-4) Заверши на силе и движении. Скажи, что будет усиливаться, если ничего не менять, и какая ближайшая развязка уже зреет. Потом — про энергию на перемены: если будущее победило (с любым счётом), у человека есть энергия начать менять сценарий прямо сейчас; если нет — он скорее оставит всё как есть, даже понимая, в чём дело. И закончи так, чтобы человек загорелся: тест показал, ЧТО происходит, но почему именно так и как развернуть это в свою пользу — это и есть та работа, которую стоит сделать с Валерией. Сделай, чтобы ему по-настоящему ЗАХОТЕЛОСЬ этого разговора — без давления, без «приходите» и «важно понимать».
-
-КАК ЧИТАТЬ КАРТУ (это логика школы — держись её и веди разбор смысловыми связками, но живым сплошным текстом, а не по пунктам; сами определения не цитируй):
-Сначала края — контакт и привязанность. Читай h вместе с m: тянется ли человек к теплу, любви и признанию именно от близкого (+h) или уходит от близости в общество, пользу, коллектив, в роль среди людей (−h); цепляется ли за контакт и зависит от него, ему нужно признание от того, к кому он привязан (+m), или хочет быть независимым, не привязанным, отделиться (−m).
-Рядом — сила, направленная на этот самый контакт. Читай s вместе с d: есть ли у человека напор, энергия и право бороться за близкого и удерживать его (+s) или агрессия погашена и он терпит, уступает, сдерживает удар (−s); а d показывает объект — держится за старое, копит, не отпускает прежнюю связь (−d) или ищет новое, сравнивает, меняет опору (+d).
-Потом середина — что человек чувствует внутри этих отношений или на работе. Читай e вместе с hy: копит ли обиду, гнев, ревность, чувство несправедливости и желание восстановить правоту (−e) или старается быть хорошим и правильным, иногда из чувства вины (+e); прячет ли намерения и чувства, стыдится прямого предъявления (−hy) или, наоборот, предъявляет себя и хочет быть замеченным (+hy). По e и hy обязательно следи за телом: 0 — напряжение уже могло уйти в психосоматику; ± — психосоматика может только назревать; есть «!» — скажи, что скоро что-то может прорваться.
-Потом сфера Я — внутренний начальник, который разрешает или запрещает человеку что-то ИМЕТЬ — ресурс, объект, контроль, форму (k) — и кем-то БЫТЬ — заметным, сильным, правым, отдельным (p). Что именно он себе разрешает или запрещает — читай по остальным факторам и скажи об этом прямо.
-
-ЗНАКИ И НАПРЯЖЕНИЕ (объясняй живо, через образ «батарейки» влечения, которая заряжается до предела и потом требует полной разрядки):
-0 — разрядка: потребность сейчас удовлетворена или уже разрядилась; по e и hy это можно связать с уходом напряжения в тело.
-± — раздвоенность и предразрядка: человека тянет в обе стороны, он сомневается или не определился; влечение было заряжено и идёт к разрядке.
-! / !! / !!! — высокое напряжение, тема близко к взрыву и развязке. Обязательно скажи, ЧТО именно может вот-вот случиться по этому фактору: разговор, вспышка, уход, конфликт, решение, телесная реакция.
-
-ГРАНИЦЫ. Не ставь медицинских диагнозов и не обещай лечение; психосоматику давай как риск ухода напряжения в тело, а не как диагноз. Не пугай катастрофами и не выдумывай фактов, которых нет в профиле. Будь точным и задевающим, но оставляй человеку выход и надежду — финал на движении и силе, а не на безысходности.
-
-Начинай сразу с удара узнавания — без вступлений про тест и про себя.`;
-    }
-
-    function buildUserPromptForDeepSeek(r, profiles) {
-      const client = r.client || {};
-      const clientLine = [
-        client.name ? `имя/псевдоним: ${client.name}` : "имя не указано",
-        client.age ? `возраст: ${client.age}` : "возраст не указан",
-        client.gender ? `пол: ${client.gender}` : "пол не указан",
-        client.status ? `статус: ${client.status}` : "статус не указан"
-      ].join("; ");
-      const context = client.context ? client.context : "контекст не указан, интерпретируй как актуальное состояние здесь и сейчас";
-      const frontMinusK = profiles.ppp.k.base === "-";
-      const energy = buildChangeEnergyForDeepSeek(r.dynamics);
-      const money = isMoneyContext(context);
-      const ambivalent = FACTORS.filter((f) => r.ppp.signs[f].base === "±").map((f) => `${f}${r.ppp.signs[f].symbol}`);
-      const charged = FACTORS.filter((f) => r.ppp.signs[f].strength > 0).map((f) => `${f}${r.ppp.signs[f].symbol}`);
-
-      return `Данные клиента: ${clientLine}.
-Запрос/контекст: ${context}.
-
-Профили теста Сонди (знаки уже посчитаны, не пересчитывай):
-ППП / передний профиль: ${JSON.stringify(profiles.ppp)}
-ТКП / задний (теоретический) профиль: ${JSON.stringify(profiles.tkp)}
-ЭКП / экспериментальный профиль: ${JSON.stringify(profiles.ekp)}
-
-Вектора ППП: ${vectorSummary(r.ppp)}.
-Заряженные факторы (есть «!»): ${charged.length ? charged.join(", ") : "нет"}.
-Амбивалентные факторы (±): ${ambivalent.length ? ambivalent.join(", ") : "нет"}.
-−k в переднем профиле: ${frontMinusK ? "ЕСТЬ — обязательно «Ты вытесняешь…», задний профиль читай как вытесненное, ЭКП как предполагаемое будущее." : "нет — задний и экспериментальный профиль подробно не раскрывай, используй только для вывода об энергии на перемены."}
-Денежный/финансовый запрос: ${money ? "ДА — обязательно вплети тему денег и дохода через k и d, но без отдельного заголовка." : "нет — про деньги отдельно не пиши."}
-Энергия на перемены: счёт ${energy.score}. ${energy.futureWon ? "Будущее победило: энергия на перемены ЕСТЬ." : "Будущее не победило: человек скорее оставит всё как есть."}
-
-Напиши разбор строго по структуре и правилам из системной инструкции. Начни сразу с раздела «Контекст», без вводных фраз про тест.`;
     }
 
     function stripDuplicateInterpretationHeading(markdown) {

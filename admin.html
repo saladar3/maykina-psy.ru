@@ -245,14 +245,17 @@
         var name = c.name || "Без имени";
         var meta = [c.age && ("возраст: " + c.age), c.gender && ("пол: " + c.gender), c.status && ("статус: " + c.status)].filter(Boolean).join(" · ");
         var ctx = c.context ? ('<div class="ctx"><b>Запрос:</b> ' + escapeHtml(c.context) + "</div>") : "";
+        var fb = r.feedback || null;
+        var rateMeta = fb && fb.rating ? (" · оценка разбора: " + fb.rating + "/5") : "";
+        var fbHtml = fb && fb.rating ? ('<div class="ctx"><b>Оценка точности разбора:</b> ' + fb.rating + ' из 5' + (fb.comment ? (' — «' + escapeHtml(fb.comment) + '»') : '') + "</div>") : "";
         var interp = r.interpretation ? mdToHtml(r.interpretation) : '<span class="muted">интерпретация не сохранена</span>';
         return '<div class="entry">' +
           '<div class="entry-head" onclick="document.getElementById(\'body-' + i + '\').classList.toggle(\'open\')">' +
             '<div><div class="entry-name">' + escapeHtml(name) + "</div>" +
-            '<div class="entry-meta">' + escapeHtml(meta) + (r.personCode ? (" · код: " + escapeHtml(r.personCode)) : "") + "</div></div>" +
+            '<div class="entry-meta">' + escapeHtml(meta) + (r.personCode ? (" · код: " + escapeHtml(r.personCode)) : "") + escapeHtml(rateMeta) + "</div></div>" +
             '<div class="entry-date">' + fmtDate(r.savedAt) + "</div>" +
           "</div>" +
-          '<div class="entry-body" id="body-' + i + '">' + ctx + profileTable(r.profiles) + chartsBlock(r.profiles) + '<div class="interp">' + interp + "</div></div>" +
+          '<div class="entry-body" id="body-' + i + '">' + ctx + fbHtml + profileTable(r.profiles) + chartsBlock(r.profiles) + '<div class="interp">' + interp + "</div></div>" +
         "</div>";
       }).join("");
     }
