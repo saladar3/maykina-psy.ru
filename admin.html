@@ -87,6 +87,61 @@
       .chart-cell { font-size:15px; }
       .vector-header .vector-cell, .factor-header .factor-cell, .reaction-footer .reaction-cell { font-size:14px; padding:7px 0; }
     }
+    /* Выбор тестов и 10-кратный разбор */
+    .tabs { display:flex; gap:8px; margin: 0 0 16px; flex-wrap:wrap; }
+    .tab { width:auto; margin:0; padding:9px 16px; font-size:15px; background:#efe7d8; color:var(--ink); }
+    .tab.active { background:var(--gold); color:#fff; }
+    .entry-head { align-items:center; }
+    .pick { display:flex; align-items:center; gap:12px; min-width:0; }
+    .pick input[type=checkbox] { width:22px; height:22px; flex:0 0 auto; accent-color: var(--gold); cursor:pointer; margin:0; }
+    .entry.selected { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(176,137,70,.25); }
+    .linkbtn { background:none; color:var(--gold); padding:0; margin:0 0 12px; width:auto; font-size:14px; font-weight:600; text-decoration:underline; }
+    .selbar { position:fixed; left:0; right:0; bottom:0; z-index:50; background:#2c2620; color:#fff; padding:12px 16px; box-shadow:0 -6px 20px rgba(0,0,0,.18); }
+    .selbar-in { max-width:960px; margin:0 auto; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .selbar-txt { flex:1 1 220px; font-size:15px; line-height:1.4; }
+    .selbar-txt .warn { color:#ffd58a; font-size:13px; display:block; }
+    .selbar button { width:auto; margin:0; padding:10px 16px; font-size:15px; }
+    .selbar button.ghost { background:transparent; border:1px solid #6d6258; color:#fff; }
+    .selbar button:disabled { opacity:.45; cursor:not-allowed; }
+    .panel { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:16px; }
+    .panel h2 { font-size:20px; margin:0 0 6px; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; margin: 12px 0 4px; }
+    .actions button { width:auto; margin:0; padding:9px 14px; font-size:14px; }
+    .warnbox { background:#fff3dc; border:1px solid #f0d9a8; border-radius:10px; padding:10px 12px; font-size:14px; line-height:1.5; margin:10px 0; }
+    .errbox { background:#fde8e4; border:1px solid #f3c2b8; border-radius:10px; padding:10px 12px; font-size:14px; margin:10px 0; color:#8a2f1d; }
+    textarea.note { width:100%; min-height:80px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; font:inherit; font-size:15px; background:#fff; color:var(--ink); resize:vertical; }
+    .tbl-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; margin: 6px 0 14px; }
+    table.stable { min-width: 560px; margin:0; }
+    table.stable td.d { white-space:nowrap; color:var(--muted); font-size:13px; }
+    table.stable tr.sum td { background:#f6efe3; font-weight:600; }
+    table.stable tr.key td { background:#efe1c4; font-weight:800; }
+    .calc { display:grid; gap:8px; font-size:15px; line-height:1.5; margin: 4px 0 14px; }
+    .calc b { font-weight:700; }
+    .formula { display:inline-block; border:1px solid var(--line); border-radius:10px; overflow:hidden; vertical-align:top; margin-top:4px; background:#fff; }
+    .formula .frow { padding:6px 12px; border-bottom:1px solid var(--line); font-size:16px; letter-spacing:.3px; }
+    .formula .frow:last-child { border-bottom:none; background:#f6efe3; }
+    .formula .lbl { color:var(--muted); font-size:12px; margin-right:8px; }
+    .formula sup { font-size:11px; color:#7a5a22; margin-right:1px; }
+    .ff { margin-right:12px; white-space:nowrap; }
+    .progress { font-size:16px; line-height:1.6; }
+    .series-item .entry-meta b { color:var(--ink); }
+    .interp ul, .interp ol { margin:0 0 10px; padding-left:22px; }
+    .interp li { margin:0 0 5px; }
+    .interp hr { border:none; border-top:1px solid var(--line); margin:14px 0; }
+    body.has-selbar .wrap { padding-bottom: 140px; }
+    @media (max-width:560px){
+      table.stable { min-width:0; font-size:12px; }
+      table.stable th, table.stable td { padding:5px 2px; }
+      table.stable td.d { font-size:11px; }
+      .panel { padding:14px 12px; }
+    }
+    @media print {
+      body { background:#fff; }
+      .no-print, .selbar, .tabs, .topbar, #paneResults, #paneSeries { display:none !important; }
+      .panel { border:none; padding:0; }
+      .wrap { padding:0; max-width:none; }
+      table.stable { min-width:0; font-size:12px; }
+    }
   </style>
 </head>
 <body>
@@ -116,25 +171,63 @@
         <button class="secondary" onclick="logout()">Выйти</button>
       </div>
     </div>
-    <div class="toolbar">
-      <input id="search" type="text" placeholder="Поиск по имени или коду" oninput="render()" />
+    <div class="tabs no-print">
+      <button class="tab active" id="tabResults" onclick="showTab('results')">Прохождения</button>
+      <button class="tab" id="tabSeries" onclick="showTab('series')">10-кратные разборы</button>
     </div>
-    <div id="count" class="count"></div>
-    <div id="list"></div>
+    <div id="paneResults">
+      <p class="muted" style="margin:0 0 12px; font-size:14px;">Чтобы составить 10-кратный разбор, отметьте галочками тесты одного человека (от 2 до 10) и нажмите кнопку внизу.</p>
+      <div class="toolbar">
+        <input id="search" type="text" placeholder="Поиск по имени или коду" oninput="render()" />
+      </div>
+      <div id="count" class="count"></div>
+      <div id="list"></div>
+    </div>
+    <div id="paneSeries" style="display:none">
+      <div id="seriesList"><p class="muted">Загружаю…</p></div>
+    </div>
+    <div id="seriesView" style="display:none"></div>
+  </div>
+
+  <div id="selBar" class="selbar no-print" style="display:none">
+    <div class="selbar-in">
+      <div class="selbar-txt" id="selText"></div>
+      <button class="ghost" onclick="clearSelection()">Сбросить</button>
+      <button id="selGo" onclick="openPrepare()">Сделать 10-кратный разбор</button>
+    </div>
   </div>
 
   <script>
     function escapeHtml(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
-    function inlineMd(s){ return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"); }
+    function inlineMd(s){
+      return s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, "$1<em>$2</em>");
+    }
+    // Markdown → HTML: заголовки, абзацы, маркированные и нумерованные списки, разделители.
     function mdToHtml(md){
-      var esc = escapeHtml(md);
-      return esc.split(/\n{2,}/).map(function(b){
-        b = b.trim();
-        if (!b) return "";
-        var m = b.match(/^#{2,3}\s+([\s\S]*)$/);
-        if (m) return "<h3>" + inlineMd(m[1].trim()) + "</h3>";
-        return "<p>" + inlineMd(b).replace(/\n/g, "<br>") + "</p>";
-      }).join("");
+      var lines = escapeHtml(md).split(/\n/);
+      var out = [], para = [], list = null;
+      function flushP(){ if (para.length){ out.push("<p>" + inlineMd(para.join("<br>")) + "</p>"); para = []; } }
+      function flushL(){ if (list){ out.push("<" + list.t + ">" + list.items.map(function(li){ return "<li>" + inlineMd(li) + "</li>"; }).join("") + "</" + list.t + ">"); list = null; } }
+      lines.forEach(function(raw){
+        var l = raw.trim();
+        if (!l){ flushP(); flushL(); return; }
+        if (/^(-{3,}|\*{3,}|_{3,})$/.test(l)){ flushP(); flushL(); out.push("<hr>"); return; }
+        var h = l.match(/^#{1,4}\s+(.*)$/);
+        if (h){ flushP(); flushL(); out.push("<h3>" + inlineMd(h[1].trim()) + "</h3>"); return; }
+        var bm = l.match(/^[-*•]\s+(.*)$/), nm = l.match(/^\d+[.)]\s+(.*)$/);
+        if (bm || nm){
+          flushP();
+          var t = bm ? "ul" : "ol";
+          if (list && list.t !== t) flushL();
+          if (!list) list = { t: t, items: [] };
+          list.items.push((bm || nm)[1]);
+          return;
+        }
+        if (list && /^\s{2,}/.test(raw)){ list.items[list.items.length - 1] += " " + l; return; }
+        flushL(); para.push(l);
+      });
+      flushP(); flushL();
+      return out.join("");
     }
     function fmtDate(iso){
       try { return new Date(iso).toLocaleString("ru-RU", { day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }); }
@@ -218,15 +311,89 @@
       }
     }
     async function reload(){
-      try { allResults = await callList(currentPw); render(); }
+      try {
+        allResults = await callList(currentPw);
+        // Выбор сохраняем только для тестов, которые всё ещё есть в списке.
+        selectedOrder = selectedOrder.filter(function(k){ return allResults.some(function(r){ return r._key === k; }); });
+        var keep = {}; selectedOrder.forEach(function(k){ keep[k] = allResults.find(function(r){ return r._key === k; }); }); selected = keep;
+        render(); updateBar();
+        if (currentTab === "series") loadSeriesList(true);
+      }
       catch(e){ alert("Не удалось обновить: " + e.message); }
     }
     function logout(){
-      currentPw = ""; allResults = [];
+      currentPw = ""; allResults = []; seriesCache = null; currentSeries = null;
+      selected = {}; selectedOrder = [];
+      updateBar();
+      document.getElementById("seriesView").style.display = "none";
       document.getElementById("app").style.display = "none";
       document.getElementById("login").style.display = "block";
       document.getElementById("pw").value = "";
       document.getElementById("loginStatus").textContent = "";
+    }
+
+    // ---------- Выбор тестов ----------
+    var selected = {};      // _key → запись
+    var selectedOrder = []; // порядок отметки
+    function selCount(){ return selectedOrder.length; }
+    function toggleSelect(key, el){
+      var r = allResults.find(function(x){ return x._key === key; });
+      if (!r) return;
+      if (selected[key]) {
+        delete selected[key];
+        selectedOrder = selectedOrder.filter(function(k){ return k !== key; });
+      } else {
+        if (selCount() >= 10) { if (el) el.checked = false; flashBar("Можно выбрать не больше 10 тестов."); return; }
+        selected[key] = r; selectedOrder.push(key);
+      }
+      var entry = el && el.closest(".entry");
+      if (entry) entry.classList.toggle("selected", !!selected[key]);
+      updateBar();
+    }
+    function selectByCode(code){
+      var same = allResults.filter(function(r){ return r._key && r.personCode === code; })
+        .sort(function(a, b){ return (b.savedAt || "").localeCompare(a.savedAt || ""); })
+        .slice(0, 10);
+      clearSelection(true);
+      same.forEach(function(r){ selected[r._key] = r; selectedOrder.push(r._key); });
+      render(); updateBar();
+    }
+    function clearSelection(silent){
+      selected = {}; selectedOrder = [];
+      if (!silent) { render(); updateBar(); }
+    }
+    function selectedRecords(){
+      return selectedOrder.map(function(k){ return selected[k]; }).filter(Boolean)
+        .sort(function(a, b){ return (a.savedAt || "").localeCompare(b.savedAt || ""); });
+    }
+    function namesOf(recs){
+      var seen = {}, out = [];
+      recs.forEach(function(r){
+        var n = ((r.client && r.client.name) || "").trim();
+        var k = n.toLowerCase().replace(/ё/g, "е");
+        if (n && !seen[k]) { seen[k] = 1; out.push(n); }
+      });
+      return out;
+    }
+    var flashTimer = null;
+    function flashBar(msg){
+      var t = document.getElementById("selText");
+      t.innerHTML = '<span class="warn">' + escapeHtml(msg) + "</span>";
+      clearTimeout(flashTimer); flashTimer = setTimeout(updateBar, 2200);
+    }
+    function updateBar(){
+      var n = selCount();
+      var bar = document.getElementById("selBar");
+      var viewOpen = document.getElementById("seriesView").style.display !== "none";
+      var show = n > 0 && !viewOpen;
+      bar.style.display = show ? "block" : "none";
+      document.body.classList.toggle("has-selbar", show);
+      if (!n) return;
+      var names = namesOf(selectedRecords());
+      var warn = names.length > 1 ? '<span class="warn">Внимание: выбраны тесты с разными именами (' + escapeHtml(names.join(", ")) + "). Проверьте, что это один человек.</span>" : "";
+      var hint = n < 2 ? '<span class="warn">Нужно минимум 2 теста.</span>' : (n < 10 ? '<span class="warn">Для классического 10-кратного разбора нужно 10 тестов.</span>' : "");
+      document.getElementById("selText").innerHTML = "<b>Выбрано " + n + " из 10</b>" + warn + (warn ? "" : hint);
+      document.getElementById("selGo").disabled = n < 2;
     }
 
     function render(){
@@ -249,15 +416,253 @@
         var rateMeta = fb && fb.rating ? (" · оценка разбора: " + fb.rating + "/5") : "";
         var fbHtml = fb && fb.rating ? ('<div class="ctx"><b>Оценка точности разбора:</b> ' + fb.rating + ' из 5' + (fb.comment ? (' — «' + escapeHtml(fb.comment) + '»') : '') + "</div>") : "";
         var interp = r.interpretation ? mdToHtml(r.interpretation) : '<span class="muted">интерпретация не сохранена</span>';
-        return '<div class="entry">' +
+        var key = r._key || "";
+        var isSel = !!(key && selected[key]);
+        var box = key
+          ? '<input type="checkbox" title="Выбрать для 10-кратного разбора" data-key="' + escapeHtml(key) + '"' + (isSel ? " checked" : "") + ' onclick="event.stopPropagation(); toggleSelect(this.dataset.key, this)" />'
+          : "";
+        var sameCount = r.personCode ? allResults.filter(function(x){ return x.personCode === r.personCode; }).length : 0;
+        var byCode = (r.personCode && sameCount > 1)
+          ? '<button class="linkbtn no-print" data-code="' + escapeHtml(r.personCode) + '" onclick="selectByCode(this.dataset.code)">Отметить все тесты с этим кодом (' + Math.min(sameCount, 10) + (sameCount > 10 ? " последних" : "") + ")</button>"
+          : "";
+        return '<div class="entry' + (isSel ? " selected" : "") + '">' +
           '<div class="entry-head" onclick="document.getElementById(\'body-' + i + '\').classList.toggle(\'open\')">' +
-            '<div><div class="entry-name">' + escapeHtml(name) + "</div>" +
-            '<div class="entry-meta">' + escapeHtml(meta) + (r.personCode ? (" · код: " + escapeHtml(r.personCode)) : "") + escapeHtml(rateMeta) + "</div></div>" +
+            '<div class="pick">' + box + '<div><div class="entry-name">' + escapeHtml(name) + "</div>" +
+            '<div class="entry-meta">' + escapeHtml(meta) + (r.personCode ? (" · код: " + escapeHtml(r.personCode)) : "") + escapeHtml(rateMeta) + "</div></div></div>" +
             '<div class="entry-date">' + fmtDate(r.savedAt) + "</div>" +
           "</div>" +
-          '<div class="entry-body" id="body-' + i + '">' + ctx + fbHtml + profileTable(r.profiles) + chartsBlock(r.profiles) + '<div class="interp">' + interp + "</div></div>" +
+          '<div class="entry-body" id="body-' + i + '">' + byCode + ctx + fbHtml + profileTable(r.profiles) + chartsBlock(r.profiles) + '<div class="interp">' + interp + "</div></div>" +
         "</div>";
       }).join("");
+    }
+
+    // ---------- Вкладки ----------
+    var seriesCache = null;
+    var currentTab = "results";
+    function showTab(tab){
+      currentTab = tab;
+      document.getElementById("tabResults").classList.toggle("active", tab === "results");
+      document.getElementById("tabSeries").classList.toggle("active", tab === "series");
+      document.getElementById("paneResults").style.display = tab === "results" ? "block" : "none";
+      document.getElementById("paneSeries").style.display = tab === "series" ? "block" : "none";
+      document.getElementById("seriesView").style.display = "none";
+      updateBar();
+      if (tab === "series") loadSeriesList();
+    }
+    async function api(body){
+      var resp = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      var data = await resp.json().catch(function(){ return {}; });
+      if (!resp.ok || !data.ok) {
+        var err = new Error(data.error || ("Ошибка " + resp.status));
+        err.status = resp.status;
+        throw err;
+      }
+      return data;
+    }
+    async function loadSeriesList(force){
+      var box = document.getElementById("seriesList");
+      if (seriesCache && !force) { renderSeriesList(); return; }
+      box.innerHTML = '<p class="muted">Загружаю…</p>';
+      try {
+        var data = await api({ action: "seriesList", password: currentPw });
+        seriesCache = data.series || [];
+        renderSeriesList();
+      } catch (e) {
+        box.innerHTML = '<div class="errbox">Не удалось загрузить разборы: ' + escapeHtml(e.message) + "</div>";
+      }
+    }
+    function seriesTitle(s){
+      var names = (s.names && s.names.length) ? s.names.join(", ") : ((s.client && s.client.name) || "Без имени");
+      return names;
+    }
+    function seriesRange(s){
+      var t = (s.analysis && s.analysis.tests) || [];
+      if (!t.length) return "";
+      var d = function(iso){ try { return new Date(iso).toLocaleDateString("ru-RU"); } catch(_) { return ""; } };
+      return t.length === 1 ? d(t[0].savedAt) : (d(t[0].savedAt) + " — " + d(t[t.length - 1].savedAt));
+    }
+    function renderSeriesList(){
+      var box = document.getElementById("seriesList");
+      if (!seriesCache.length) { box.innerHTML = '<p class="muted">Пока нет ни одного 10-кратного разбора. Отметьте тесты на вкладке «Прохождения».</p>'; return; }
+      box.innerHTML = seriesCache.map(function(s, i){
+        var a = s.analysis || {};
+        var cls = (a.driveClass || []).map(function(c){ return c.vector + " " + c.factor + c.sign; }).join(", ");
+        return '<div class="entry series-item"><div class="entry-head" onclick="openSeries(' + i + ')">' +
+          '<div><div class="entry-name">' + escapeHtml(seriesTitle(s)) + "</div>" +
+          '<div class="entry-meta">' + (a.n || 0) + " тестов · " + escapeHtml(seriesRange(s)) + (cls ? (" · класс: <b>" + escapeHtml(cls) + "</b>") : "") + "</div></div>" +
+          '<div class="entry-date">составлен ' + fmtDate(s.savedAt) + "</div></div></div>";
+      }).join("");
+    }
+    function openSeries(i){
+      var s = seriesCache[i];
+      if (!s) return;
+      showSeriesView(seriesResultHtml(s, "series"));
+      currentSeries = s;
+    }
+    function showSeriesView(html){
+      document.getElementById("paneResults").style.display = "none";
+      document.getElementById("paneSeries").style.display = "none";
+      var v = document.getElementById("seriesView");
+      v.innerHTML = html; v.style.display = "block";
+      updateBar();
+      window.scrollTo(0, 0);
+    }
+    function backFromSeries(){
+      showTab(currentTab);
+    }
+
+    // ---------- Подготовка и запуск разбора ----------
+    function shortProfile(p){
+      return FACTORS.map(function(f){ return f + escapeHtml((p && p[f]) ? (p[f].sign || p[f].base || "?") : "?"); }).join(" ");
+    }
+    function openPrepare(){
+      var recs = selectedRecords();
+      if (recs.length < 2) return;
+      var names = namesOf(recs);
+      var warn = "";
+      if (names.length > 1) warn += '<div class="warnbox">Выбраны тесты с разными именами: <b>' + escapeHtml(names.join(", ")) + "</b>. Если это разные люди, разбор получится неверным — вернитесь и проверьте выбор.</div>";
+      if (recs.length < 10) warn += '<div class="warnbox">Выбрано ' + recs.length + " тестов. Классический 10-кратный разбор делается по 10 тестам; по меньшему числу расчёт тоже будет, но выводы менее надёжные.</div>";
+      var rows = recs.map(function(r, i){
+        return "<tr><td>" + (i + 1) + '</td><td class="d">' + fmtDate(r.savedAt) + '</td><td style="text-align:left">' + escapeHtml((r.client && r.client.name) || "—") + '</td><td style="text-align:left; white-space:nowrap">' + shortProfile(r.profiles && r.profiles.ppp) + "</td></tr>";
+      }).join("");
+      showSeriesView(
+        '<div class="panel">' +
+          "<h2>10-кратный тест-разбор</h2>" +
+          '<p class="muted" style="margin:0">Проверьте выбранные тесты. Порядок — по дате прохождения.</p>' +
+          '<div class="tbl-wrap"><table class="ptable stable"><thead><tr><th>№</th><th>Дата</th><th>Имя</th><th>ППП</th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
+          warn +
+          '<label for="seriesNote"><b>Заметка для разбора</b> <span class="muted">(необязательно: запрос, обстоятельства, что важно учесть)</span></label>' +
+          '<textarea id="seriesNote" class="note" maxlength="1500" placeholder="Например: запрос — не может решиться на развод; тесты проходила в течение месяца"></textarea>' +
+          '<div class="actions">' +
+            '<button onclick="runSeries()">Составить разбор</button>' +
+            '<button class="secondary" onclick="backFromSeries()">Назад к выбору</button>' +
+          "</div>" +
+        "</div>"
+      );
+    }
+    var currentSeries = null;
+    var seriesBusy = false;
+    async function runSeries(){
+      if (seriesBusy) return;
+      var recs = selectedRecords();
+      var note = (document.getElementById("seriesNote") || {}).value || "";
+      seriesBusy = true;
+      var started = Date.now();
+      showSeriesView('<div class="panel progress"><h2>Составляю 10-кратный разбор…</h2>' +
+        '<p>Прошло: <b id="seriesTimer">0:00</b>. Обычно это занимает 1,5–3 минуты. Не закрывайте страницу.</p>' +
+        '<p class="muted">Сначала считается серия (Σ0, Σ±, пропорция латентностей, класс, формула побуждений), затем пишется толкование по справочнику.</p></div>');
+      var timer = setInterval(function(){
+        var el = document.getElementById("seriesTimer");
+        if (!el) return;
+        var sec = Math.floor((Date.now() - started) / 1000);
+        el.textContent = Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0");
+      }, 1000);
+      try {
+        var data = await api({ action: "series", password: currentPw, keys: recs.map(function(r){ return r._key; }), note: note });
+        currentSeries = data.series;
+        if (seriesCache) seriesCache.unshift(data.series);
+        clearSelection(true);
+        render();
+        currentTab = "series";
+        document.getElementById("tabResults").classList.remove("active");
+        document.getElementById("tabSeries").classList.add("active");
+        showSeriesView(seriesResultHtml(data.series, "new"));
+      } catch (e) {
+        showSeriesView('<div class="panel"><h2>Разбор не получился</h2><div class="errbox">' + escapeHtml(e.message) + "</div>" +
+          '<p class="muted">Выбор тестов сохранён. Можно попробовать ещё раз через минуту.</p>' +
+          '<div class="actions"><button onclick="openPrepare()">Попробовать ещё раз</button><button class="secondary" onclick="backFromSeries()">Назад к выбору</button></div></div>');
+      } finally {
+        clearInterval(timer);
+        seriesBusy = false;
+      }
+    }
+
+    // ---------- Отображение разбора ----------
+    function signHtml(s){ return escapeHtml(String(s || "")); }
+    function seriesCalcHtml(a){
+      var F = a.factors || FACTORS;
+      var head = "<tr><th>№</th><th>Дата</th>" + F.map(function(f){ return "<th>" + f + "</th>"; }).join("") + "</tr>";
+      var rows = (a.tests || []).map(function(t){
+        var d = ""; try { d = new Date(t.savedAt).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit" }); } catch(_) {}
+        return "<tr><td>" + t.n + '</td><td class="d">' + escapeHtml(d) + "</td>" + t.ppp.map(function(x){ return "<td>" + signHtml(x) + "</td>"; }).join("") + "</tr>";
+      }).join("");
+      var sumRow = function(label, fn, cls){ return '<tr class="' + (cls || "sum") + '"><td colspan="2" style="text-align:left">' + label + "</td>" + F.map(function(f){ return "<td>" + fn(a.ppp[f]) + "</td>"; }).join("") + "</tr>"; };
+      var table = '<div class="tbl-wrap"><table class="ptable stable"><thead>' + head + "</thead><tbody>" + rows +
+        sumRow("Σ0", function(x){ return x.n0; }) +
+        sumRow("Σ±", function(x){ return x.npm; }) +
+        sumRow("Ур. напр. тенд. (Σ0+Σ±)", function(x){ return x.symptom; }, "key") +
+        sumRow("Σ+", function(x){ return x.nplus; }) +
+        sumRow("Σ−", function(x){ return x.nminus; }) +
+        "</tbody></table></div>";
+
+      var lat = (a.latent || []);
+      var mag = lat.map(function(l){ return l.vector + ": " + (l.magnitude ? (l.factor + " " + l.magnitude) : "0"); }).join(" · ");
+      var prop = lat.map(function(l){ return l.magnitude ? (l.vector + " " + l.factor + signHtml(l.sign) + " / " + l.magnitude) : (l.vector + " — 0"); }).join(" : ");
+      var cls = (a.driveClass || []).map(function(c){ return c.vector + " (" + c.factor + signHtml(c.sign) + "), " + c.magnitude; }).join(" и ") || "не выделяется";
+      var ff = function(x){ return '<span class="ff">' + x.factor + "<sup>" + signHtml(x.sup) + "</sup>" + x.count + "</span>"; };
+      var f = a.formula || { top: [], middle: [], roots: [] };
+      var formula = '<div class="formula">' +
+        '<div class="frow"><span class="lbl">верх</span>' + (f.top.map(ff).join("") || "—") + "</div>" +
+        '<div class="frow"><span class="lbl">середина</span>' + (f.middle.map(ff).join("") || "—") + "</div>" +
+        '<div class="frow"><span class="lbl">корни</span>' + (f.roots.map(ff).join("") || "—") + "</div></div>";
+      var v = a.variant || { numerator: [], denominator: [] };
+      var variant = v.numerator.map(ff).join("") + " / " + v.denominator.map(ff).join("");
+      var c = a.concordance || {};
+      var dom = function(obj){ return F.map(function(f){ return f + signHtml(obj && obj[f]); }).join(" "); };
+      return "<h3>Расчёт серии (передний план, ППП)</h3>" + table +
+        '<div class="calc">' +
+          "<div><b>Величина количественного напряжения:</b> " + escapeHtml(mag) + "</div>" +
+          "<div><b>Пропорция латентностей:</b> " + prop + "</div>" +
+          "<div><b>Класс побуждений:</b> " + cls + "</div>" +
+          "<div><b>Формула побуждений:</b><br>" + formula + "</div>" +
+          "<div><b>Вариант:</b> " + variant + "</div>" +
+          "<div><b>ТКП, преобладающие знаки:</b> " + dom(a.tkpDominant) + "</div>" +
+          "<div><b>ЭКП, преобладающие реакции:</b> " + dom(a.ekpDominant) + "</div>" +
+          "<div><b>Конкордантность ЭКП:</b> совпадает с ППП — " + (c.withPPP || 0) + ", с ТКП — " + (c.withTKP || 0) + ", новое — " + (c.novel || 0) + " (из " + (c.cells || 0) + ")</div>" +
+        "</div>";
+    }
+    function seriesResultHtml(s, from){
+      var a = s.analysis || {};
+      var g = s.generation || {};
+      var partial = (g.partA && g.partA.complete === false) || (g.partB && g.partB.complete === false);
+      return '<div class="panel">' +
+        "<h2>10-кратный тест-разбор</h2>" +
+        '<div class="muted">' + escapeHtml(seriesTitle(s)) + " · " + (a.n || 0) + " тестов · " + escapeHtml(seriesRange(s)) + " · составлен " + fmtDate(s.savedAt) + "</div>" +
+        '<div class="actions no-print">' +
+          '<button class="secondary" onclick="backFromSeries()">← Назад</button>' +
+          '<button class="secondary" onclick="copySeries(true)">Скопировать для клиента</button>' +
+          '<button class="secondary" onclick="copySeries(false)">Скопировать полностью</button>' +
+          '<button class="secondary" onclick="window.print()">Печать / PDF</button>' +
+          '<span id="copyStatus" class="muted" style="align-self:center; font-size:13px"></span>' +
+        "</div>" +
+        (partial ? '<div class="warnbox no-print">Часть текста могла оборваться (сервис ответил не полностью). Если какого-то раздела не хватает — составьте разбор ещё раз.</div>' : "") +
+        (s.note ? ('<div class="ctx"><b>Заметка:</b> ' + escapeHtml(s.note) + "</div>") : "") +
+        seriesCalcHtml(a) +
+        "<h3>Толкование</h3>" +
+        '<div class="interp">' + mdToHtml(s.text || "") + "</div>" +
+      "</div>";
+    }
+    // Текст для клиента — без служебного раздела «Для Валерии».
+    function seriesPlainText(s, forClient){
+      var t = String(s.text || "");
+      if (forClient) t = t.replace(/(^|\n)#{1,4}\s*Для Валерии[\s\S]*?(?=\n#{1,4}\s|$)/i, "\n");
+      t = t.replace(/^#{1,4}\s*(.+)$/gm, "$1").replace(/\*\*(.+?)\*\*/g, "$1").replace(/^[ \t]*[-*]\s+/gm, "• ").replace(/\n{3,}/g, "\n\n").trim();
+      var head = "10-кратный тест-разбор (тест Сонди)\n" + seriesTitle(s) + " · " + ((s.analysis && s.analysis.n) || 0) + " тестов · " + seriesRange(s) + "\n\n";
+      return head + t + "\n";
+    }
+    async function copySeries(forClient){
+      if (!currentSeries) return;
+      var text = seriesPlainText(currentSeries, forClient);
+      var st = document.getElementById("copyStatus");
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_) {
+        var ta = document.createElement("textarea");
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try { document.execCommand("copy"); } catch (_) {}
+        ta.remove();
+      }
+      if (st) st.textContent = forClient ? "Скопировано (без раздела «Для Валерии»)" : "Скопировано целиком";
     }
   </script>
 </body>
