@@ -349,17 +349,6 @@
       font-size: 12px; line-height: 1.5; color: rgba(255,247,232,.55); }
     .consent-box.consent-missing { border-color: var(--danger); }
     .char-count { display: block; text-align: right; font-size: 12px; color: var(--muted); margin-top: 4px; }
-    .rate-box { margin: 0 0 24px; padding: 16px 18px; border: 1px solid rgba(36,32,29,.14); border-radius: 16px; background: #fff9ee; color: #24201d; }
-    .rate-q { font-weight: 700; margin-bottom: 10px; }
-    .rate-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-    .rate-btns button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(36,32,29,.25); background: #fff; font-size: 17px; font-weight: 700; cursor: pointer; color: #24201d; }
-    .rate-btns button:hover, .rate-btns button.on { background: #d6ad66; color: #24201d; border-color: #b8914f; }
-    .rate-scale { display: flex; justify-content: space-between; max-width: 252px; font-size: 12px; color: #6a6057; margin-top: 6px; }
-    .rate-comment { margin-top: 12px; }
-    .rate-comment textarea { width: 100%; min-height: 70px; box-sizing: border-box; border-radius: 10px; border: 1px solid rgba(36,32,29,.2); padding: 10px; font: inherit; color: #24201d; background: #fff; }
-    .rate-comment button { margin-top: 8px; }
-    .rate-thanks { margin-top: 10px; color: #6a6057; }
-    .pdf-exporting .rate-box { display: none; }
 
     /* Блок со страницами-разборами: точки входа из поиска */
     .kb-block { margin-top: 28px; }
@@ -2411,7 +2400,6 @@
         // Показываем ТОЛЬКО живой текст ИИ. Сухую шаблонную сводку (buildLocalAnalysisHtml)
         // больше НЕ дописываем — именно она делала результат «сухим по определениям».
         renderInterpretation(analysisBlock, aiText, getPersonCode());
-        showRateBox(analysisBlock, getPersonCode());
         trackGoal("interpretation_ok");
         showToast("Краткая интерпретация готова. Ее можно скачать вместе с PDF.");
       } catch (error) {
@@ -2424,52 +2412,6 @@
           button.textContent = old;
         }
       }
-    }
-
-    /* ======================== Оценка точности разбора ======================== */
-    /* Человек ставит 1–5 и (по желанию) пишет, что показалось неточным.
-       Оценка сохраняется в его же результат — Валерия видит её в кабинете. */
-    function showRateBox(analysisBlock, personCode) {
-      if (!personCode || !CONFIG.interpretationApiUrl) return;
-      const old = $("rateBox");
-      if (old) old.remove();
-      const box = document.createElement("div");
-      box.className = "rate-box";
-      box.id = "rateBox";
-      box.innerHTML = `
-        <div class="rate-q">Насколько точно разбор описывает вас?</div>
-        <div class="rate-btns">${[1, 2, 3, 4, 5].map((n) => `<button type="button" data-rate="${n}" aria-label="Оценка ${n} из 5">${n}</button>`).join("")}</div>
-        <div class="rate-scale"><span>совсем не про меня</span><span>точно про меня</span></div>
-        <div class="rate-comment" hidden>
-          <textarea id="rateComment" maxlength="1000" placeholder="Что показалось неточным или, наоборот, попало в точку? (необязательно)"></textarea>
-          <button type="button" class="btn btn-primary" id="rateSend">Отправить</button>
-        </div>
-        <div class="rate-thanks" hidden>Спасибо! Это помогает делать разборы точнее.</div>`;
-      analysisBlock.insertAdjacentElement("afterend", box);
-      let current = 0;
-      const send = async (withComment) => {
-        try {
-          await fetch(CONFIG.interpretationApiUrl, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "rate", personCode, rating: current, comment: withComment ? ($("rateComment").value || "") : "" })
-          });
-        } catch (_) { /* оценка — не критично */ }
-      };
-      box.querySelectorAll("[data-rate]").forEach((b) => b.addEventListener("click", () => {
-        current = Number(b.dataset.rate);
-        box.querySelectorAll("[data-rate]").forEach((x) => x.classList.toggle("on", Number(x.dataset.rate) <= current));
-        box.querySelector(".rate-comment").hidden = false;
-        box.querySelector(".rate-thanks").hidden = false;
-        trackGoal("interpretation_rating", { rating: current });
-        send(false);
-      }));
-      box.querySelector("#rateSend").addEventListener("click", () => {
-        if (!current) return;
-        send(true);
-        box.querySelector(".rate-comment").hidden = true;
-        box.querySelector(".rate-thanks").textContent = "Спасибо за подробный отзыв!";
-      });
     }
 
     function getPersonCode() {
