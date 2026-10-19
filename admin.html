@@ -135,6 +135,21 @@
       table.stable td.d { font-size:11px; }
       .panel { padding:14px 12px; }
     }
+    /* Диалоги Алисы */
+    .badge { display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; background:#efe7d8; color:var(--ink); margin:4px 6px 0 0; font-weight:600; }
+    .badge.ok { background:#dff3e4; color:#1f6b35; }
+    .badge.warn { background:#fde8e4; color:#8a2f1d; }
+    .badge.muted { background:#eee8de; color:var(--muted); }
+    .dlg-last { color:var(--muted); font-size:13px; margin-top:4px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:620px; }
+    .chat { display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+    .msg { max-width:82%; padding:9px 12px; border-radius:14px; white-space:pre-wrap; word-wrap:break-word; line-height:1.45; font-size:15px; }
+    .msg.user { align-self:flex-start; background:#fff; border:1px solid var(--line); border-bottom-left-radius:4px; }
+    .msg.assistant { align-self:flex-end; background:#efe1c4; border-bottom-right-radius:4px; }
+    .msg .t { font-size:11px; color:var(--muted); margin-top:4px; }
+    .day-sep { align-self:center; font-size:12px; color:var(--muted); background:#efe7d8; border-radius:999px; padding:2px 10px; margin:6px 0; }
+    .bk-list { display:grid; gap:6px; font-size:14px; margin: 6px 0 4px; }
+    .bk-list .bk { background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 10px; }
+    @media (max-width:560px){ .msg { max-width:92%; } .dlg-last { max-width:260px; } }
     @media print {
       body { background:#fff; }
       .no-print, .selbar, .tabs, .topbar, #paneResults, #paneSeries { display:none !important; }
@@ -174,6 +189,7 @@
     <div class="tabs no-print">
       <button class="tab active" id="tabResults" onclick="showTab('results')">Прохождения</button>
       <button class="tab" id="tabSeries" onclick="showTab('series')">10-кратные разборы</button>
+      <button class="tab" id="tabDialogs" onclick="showTab('dialogs')">Диалоги Алисы</button>
     </div>
     <div id="paneResults">
       <p class="muted" style="margin:0 0 12px; font-size:14px;">Чтобы составить 10-кратный разбор, отметьте галочками тесты одного человека (от 2 до 10) и нажмите кнопку внизу.</p>
@@ -186,6 +202,14 @@
     <div id="paneSeries" style="display:none">
       <div id="seriesList"><p class="muted">Загружаю…</p></div>
     </div>
+    <div id="paneDialogs" style="display:none">
+      <div class="toolbar">
+        <input id="dlgSearch" type="text" placeholder="Поиск по имени или @нику" oninput="renderDialogs()" />
+        <button class="secondary" onclick="loadDialogs(true)">Обновить</button>
+      </div>
+      <div id="dialogsBox"><p class="muted">Загружаю…</p></div>
+    </div>
+    <div id="dialogView" style="display:none"></div>
     <div id="seriesView" style="display:none"></div>
   </div>
 
@@ -318,11 +342,13 @@
         var keep = {}; selectedOrder.forEach(function(k){ keep[k] = allResults.find(function(r){ return r._key === k; }); }); selected = keep;
         render(); updateBar();
         if (currentTab === "series") loadSeriesList(true);
+        if (currentTab === "dialogs") loadDialogs(true);
       }
       catch(e){ alert("Не удалось обновить: " + e.message); }
     }
     function logout(){
-      currentPw = ""; allResults = []; seriesCache = null; currentSeries = null;
+      currentPw = ""; allResults = []; seriesCache = null; currentSeries = null; dialogsCache = null;
+      document.getElementById("dialogView").style.display = "none";
       selected = {}; selectedOrder = [];
       updateBar();
       document.getElementById("seriesView").style.display = "none";
@@ -385,7 +411,7 @@
       var n = selCount();
       var bar = document.getElementById("selBar");
       var viewOpen = document.getElementById("seriesView").style.display !== "none";
-      var show = n > 0 && !viewOpen;
+      var show = n > 0 && !viewOpen && currentTab !== "dialogs";
       bar.style.display = show ? "block" : "none";
       document.body.classList.toggle("has-selbar", show);
       if (!n) return;
@@ -443,11 +469,15 @@
       currentTab = tab;
       document.getElementById("tabResults").classList.toggle("active", tab === "results");
       document.getElementById("tabSeries").classList.toggle("active", tab === "series");
+      document.getElementById("tabDialogs").classList.toggle("active", tab === "dialogs");
       document.getElementById("paneResults").style.display = tab === "results" ? "block" : "none";
       document.getElementById("paneSeries").style.display = tab === "series" ? "block" : "none";
+      document.getElementById("paneDialogs").style.display = tab === "dialogs" ? "block" : "none";
       document.getElementById("seriesView").style.display = "none";
+      document.getElementById("dialogView").style.display = "none";
       updateBar();
       if (tab === "series") loadSeriesList();
+      if (tab === "dialogs") loadDialogs();
     }
     async function api(body){
       var resp = await fetch(API_URL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -502,6 +532,8 @@
     function showSeriesView(html){
       document.getElementById("paneResults").style.display = "none";
       document.getElementById("paneSeries").style.display = "none";
+      document.getElementById("paneDialogs").style.display = "none";
+      document.getElementById("dialogView").style.display = "none";
       var v = document.getElementById("seriesView");
       v.innerHTML = html; v.style.display = "block";
       updateBar();
@@ -509,6 +541,110 @@
     }
     function backFromSeries(){
       showTab(currentTab);
+    }
+
+    // ---------- Диалоги Алисы (Telegram) ----------
+    var dialogsCache = null;
+    function fmtTs(ts){
+      if (!ts) return "";
+      try { return new Date(ts).toLocaleString("ru-RU", { timeZone: "Europe/Moscow", day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit" }); } catch(_) { return ""; }
+    }
+    function dayOf(ts){
+      try { return new Date(ts).toLocaleDateString("ru-RU", { timeZone: "Europe/Moscow", weekday:"long", day:"numeric", month:"long" }); } catch(_) { return ""; }
+    }
+    async function loadDialogs(force){
+      var box = document.getElementById("dialogsBox");
+      if (dialogsCache && !force) { renderDialogs(); return; }
+      box.innerHTML = '<p class="muted">Загружаю…</p>';
+      try {
+        dialogsCache = await api({ action: "dialogs", password: currentPw });
+        renderDialogs();
+      } catch (e) {
+        box.innerHTML = '<div class="errbox">Не удалось загрузить диалоги: ' + escapeHtml(e.message) + "</div>";
+      }
+    }
+    function dialogTitle(d){
+      return (d.firstName || "Без имени") + (d.username ? " @" + d.username : "");
+    }
+    function renderDialogs(){
+      var box = document.getElementById("dialogsBox");
+      if (!dialogsCache) return;
+      var q = (document.getElementById("dlgSearch").value || "").toLowerCase().trim();
+      var list = (dialogsCache.dialogs || []).filter(function(d){
+        return !q || dialogTitle(d).toLowerCase().indexOf(q) >= 0;
+      });
+      var now = Date.now();
+      var upcoming = (dialogsCache.bookings || []).filter(function(b){ return !b.archived && (!b.slotTs || b.slotTs > now - 3 * 3600000); })
+        .sort(function(a, b){ return (a.slotTs || 0) - (b.slotTs || 0); });
+      var html = '<div class="panel"><h2>Ближайшие записи через Алису</h2>' +
+        (upcoming.length ? '<div class="bk-list">' + upcoming.map(function(b){
+          return '<div class="bk"><b>' + escapeHtml(b.slotTs ? fmtTs(b.slotTs) : b.slotText) + "</b> — " + escapeHtml(b.clientName + (b.username ? " @" + b.username : "")) +
+            (b.format ? " · " + escapeHtml(b.format) : "") + (b.paymentType && b.paymentType !== "не указано" ? " · " + escapeHtml(b.paymentType) : "") +
+            (b.notified ? "" : ' <span class="badge warn">Валерии ещё не отправлено</span>') + "</div>";
+        }).join("") + "</div>" : '<p class="muted" style="margin:6px 0 0">Предстоящих записей нет.</p>') + "</div>";
+      html += '<div class="count">Диалогов: ' + (dialogsCache.dialogs || []).length + (q ? ", найдено: " + list.length : "") + "</div>";
+      if (dialogsCache.valeria && !q) {
+        html += '<div class="entry"><div class="entry-head" data-id="valeria" onclick="openDialog(this.dataset.id)"><div><div class="entry-name">Валерия ↔ Алиса</div>' +
+          '<div class="entry-meta">служебная переписка: задачи и правила для Алисы · сообщений: ' + dialogsCache.valeria.count + "</div></div>" +
+          '<div class="entry-date">' + fmtTs(dialogsCache.valeria.lastTs) + "</div></div></div>";
+      }
+      html += list.map(function(d){
+        var badges = "";
+        if (d.booked && d.booked.length) badges += '<span class="badge ok">записан(а): ' + escapeHtml(d.booked.join("; ")) + "</span>";
+        if (d.waiting) badges += '<span class="badge warn">последним писал клиент</span>';
+        if (d.testCode) badges += '<span class="badge">прошёл тест</span>';
+        if (d.optOut) badges += '<span class="badge muted">просил не писать первой</span>';
+        if (d.blocked) badges += '<span class="badge muted">заблокировал бота</span>';
+        return '<div class="entry"><div class="entry-head" data-id="' + escapeHtml(d.chatId) + '" onclick="openDialog(this.dataset.id)">' +
+          '<div style="min-width:0"><div class="entry-name">' + escapeHtml(dialogTitle(d)) + "</div>" +
+          '<div class="entry-meta">сообщений: ' + d.count + " (от клиента: " + d.userCount + ")</div>" +
+          (d.lastText ? '<div class="dlg-last">' + (d.lastRole === "user" ? "Клиент: " : "Алиса: ") + escapeHtml(d.lastText) + "</div>" : "") +
+          (badges ? "<div>" + badges + "</div>" : "") + "</div>" +
+          '<div class="entry-date">' + fmtTs(d.lastTs) + "</div></div></div>";
+      }).join("");
+      box.innerHTML = html;
+    }
+    async function openDialog(chatId){
+      var v = document.getElementById("dialogView");
+      document.getElementById("paneDialogs").style.display = "none";
+      v.style.display = "block";
+      v.innerHTML = '<div class="panel"><p class="muted">Загружаю диалог…</p></div>';
+      window.scrollTo(0, 0);
+      try {
+        var data = await api({ action: "dialog", password: currentPw, chatId: chatId });
+        var d = data.dialog;
+        var isValeria = chatId === "valeria";
+        var lastDay = "";
+        var msgs = (d.history || []).map(function(m){
+          var sep = "";
+          var day = m.ts ? dayOf(m.ts) : "";
+          if (day && day !== lastDay) { sep = '<div class="day-sep">' + escapeHtml(day) + "</div>"; lastDay = day; }
+          var who = m.role === "user" ? (isValeria ? "Валерия" : (d.firstName || "Клиент")) : "Алиса";
+          var t = (m.ts ? new Date(m.ts).toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow", hour: "2-digit", minute: "2-digit" }) : "") + (m.proactive ? " · написала сама" : "");
+          return sep + '<div class="msg ' + (m.role === "user" ? "user" : "assistant") + '">' + escapeHtml(m.content) + '<div class="t">' + escapeHtml(who + (t ? " · " + t : "")) + "</div></div>";
+        }).join("");
+        var bk = (d.bookings || []).map(function(b){
+          return '<span class="badge ' + (b.archived ? "muted" : "ok") + '">' + (b.archived ? "была запись: " : "запись: ") + escapeHtml(b.slotTs ? fmtTs(b.slotTs) : b.slotText) + "</span>";
+        }).join("");
+        v.innerHTML = '<div class="panel">' +
+          '<div class="actions no-print" style="margin-top:0"><button class="secondary" onclick="closeDialog()">← Ко всем диалогам</button></div>' +
+          "<h2>" + escapeHtml(isValeria ? "Валерия ↔ Алиса" : (d.firstName || "Без имени")) + "</h2>" +
+          '<div class="muted">' + (d.username ? '<a href="https://t.me/' + encodeURIComponent(d.username) + '" target="_blank" rel="noopener">@' + escapeHtml(d.username) + "</a> · " : "") +
+          "сообщений: " + (d.history || []).length + "</div>" +
+          (bk || d.testCode || d.optOut || d.blocked ? "<div>" + bk +
+            (d.testCode ? ' <a class="badge" href="/?r=' + encodeURIComponent(d.testCode) + '" target="_blank" rel="noopener">результат теста</a>' : "") +
+            (d.optOut ? ' <span class="badge muted">просил не писать первой</span>' : "") +
+            (d.blocked ? ' <span class="badge muted">заблокировал бота</span>' : "") + "</div>" : "") +
+          '<div class="chat">' + (msgs || '<p class="muted">Сообщений нет.</p>') + "</div>" +
+          '<p class="muted" style="font-size:12px; margin-top:14px">Время — московское. У диалогов, начатых до 19 октября 2026 года, начало может быть обрезано: тогда бот хранил только последние 26 сообщений.</p>' +
+        "</div>";
+      } catch (e) {
+        v.innerHTML = '<div class="panel"><div class="errbox">Не удалось открыть диалог: ' + escapeHtml(e.message) + '</div><button class="secondary" onclick="closeDialog()">← Ко всем диалогам</button></div>';
+      }
+    }
+    function closeDialog(){
+      document.getElementById("dialogView").style.display = "none";
+      document.getElementById("paneDialogs").style.display = "block";
     }
 
     // ---------- Подготовка и запуск разбора ----------
