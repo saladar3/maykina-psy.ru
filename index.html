@@ -2477,7 +2477,12 @@
         let c = localStorage.getItem("maykina_person_code");
         if (!c) {
           /* Более длинный код для публичной ссылки — 12 случайных символов */
-          c = "p-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 6) + Math.random().toString(36).slice(2, 6);
+          /* 12 случайных символов из криптостойкого генератора — подобрать чужой код перебором нельзя */
+          const abc = "abcdefghijklmnopqrstuvwxyz0123456789";
+          const rnd = (window.crypto && window.crypto.getRandomValues)
+            ? Array.from(window.crypto.getRandomValues(new Uint8Array(12)), (b) => abc[b % 36]).join("")
+            : Math.random().toString(36).slice(2, 8) + Math.random().toString(36).slice(2, 8);
+          c = "p-" + Date.now().toString(36) + "-" + rnd;
           localStorage.setItem("maykina_person_code", c);
         }
         return c;

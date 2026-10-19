@@ -4,6 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
+  <!-- Защита: странице разрешено обращаться только к нашей функции; чужие скрипты, формы и встраивание запрещены. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src https://functions.yandexcloud.net; base-uri 'none'; form-action 'none'; object-src 'none'; frame-src 'none'" />
+  <meta name="referrer" content="no-referrer" />
+  <style id="antiFrame">body{display:none !important;}</style>
+  <script>
+    // Кабинет нельзя открыть внутри чужого сайта (защита от подмены кликов).
+    if (window.self === window.top) { document.getElementById("antiFrame").remove(); } else { window.top.location = window.self.location; }
+  </script>
   <title>Кабинет — результаты теста Сонди</title>
   <style>
     :root { --bg:#f2eadf; --ink:#2c2620; --muted:#8a8078; --gold:#b08946; --card:#fbf7f0; --line:#e4dac9; --grid:#dde2e4; --ok:#bff4d2; --bad:#ffd0d2; }
@@ -576,10 +584,16 @@
       var now = Date.now();
       var upcoming = (dialogsCache.bookings || []).filter(function(b){ return !b.archived && (!b.slotTs || b.slotTs > now - 3 * 3600000); })
         .sort(function(a, b){ return (a.slotTs || 0) - (b.slotTs || 0); });
-      var html = '<div class="panel"><h2>Ближайшие записи через Алису</h2>' +
+      var sch = (dialogsCache.schedule || []).map(function(d){
+        return '<div class="bk"><b>' + escapeHtml(d.label) + "</b>: " + (d.slots.length ? d.slots.map(function(x){
+          return x.taken ? '<span class="badge ok" title="' + escapeHtml(x.taken) + '">' + escapeHtml(x.time) + " · " + escapeHtml(x.taken) + "</span>" : '<span class="badge muted">' + escapeHtml(x.time) + "</span>";
+        }).join(" ") : '<span class="muted">выходной</span>') + "</div>";
+      }).join("");
+      var html = (sch ? '<div class="panel"><h2>График на неделю</h2><p class="muted" style="margin:0 0 6px;font-size:13px">Серые — свободные окна, зелёные — занятые. Изменить график: написать Алисе, например «в пятницу не работаю».</p><div class="bk-list">' + sch + "</div></div>" : "") +
+        '<div class="panel"><h2>Ближайшие записи через Алису</h2>' +
         (upcoming.length ? '<div class="bk-list">' + upcoming.map(function(b){
           return '<div class="bk"><b>' + escapeHtml(b.slotTs ? fmtTs(b.slotTs) : b.slotText) + "</b> — " + escapeHtml(b.clientName + (b.username ? " @" + b.username : "")) +
-            (b.format ? " · " + escapeHtml(b.format) : "") + (b.paymentType && b.paymentType !== "не указано" ? " · " + escapeHtml(b.paymentType) : "") +
+            (b.format ? " · " + escapeHtml(b.format) : "") + (b.paymentType && b.paymentType !== "не указано" ? " · " + escapeHtml(b.paymentType) + (b.packageNo ? " " + b.packageNo + "/4" : "") : "") +
             (b.notified ? "" : ' <span class="badge warn">Валерии ещё не отправлено</span>') + "</div>";
         }).join("") + "</div>" : '<p class="muted" style="margin:6px 0 0">Предстоящих записей нет.</p>') + "</div>";
       html += '<div class="count">Диалогов: ' + (dialogsCache.dialogs || []).length + (q ? ", найдено: " + list.length : "") + "</div>";
@@ -624,7 +638,7 @@
           return sep + '<div class="msg ' + (m.role === "user" ? "user" : "assistant") + '">' + escapeHtml(m.content) + '<div class="t">' + escapeHtml(who + (t ? " · " + t : "")) + "</div></div>";
         }).join("");
         var bk = (d.bookings || []).map(function(b){
-          return '<span class="badge ' + (b.archived ? "muted" : "ok") + '">' + (b.archived ? "была запись: " : "запись: ") + escapeHtml(b.slotTs ? fmtTs(b.slotTs) : b.slotText) + "</span>";
+          return '<span class="badge ' + (b.cancelled ? "warn" : b.archived ? "muted" : "ok") + '">' + (b.cancelled ? "отменена: " : b.archived ? "была запись: " : "запись: ") + escapeHtml(b.slotTs ? fmtTs(b.slotTs) : b.slotText) + (b.packageNo ? " (" + b.packageNo + "/4)" : "") + "</span>";
         }).join("");
         v.innerHTML = '<div class="panel">' +
           '<div class="actions no-print" style="margin-top:0"><button class="secondary" onclick="closeDialog()">← Ко всем диалогам</button></div>' +
