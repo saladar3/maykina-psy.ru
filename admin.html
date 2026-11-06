@@ -587,16 +587,23 @@
         }).join(" ") : '<span class="muted">выходной</span>') + "</div>";
       }).join("");
       var html = (sch ? '<div class="panel"><h2>График на неделю</h2><p class="muted" style="margin:0 0 6px;font-size:13px">Серые — свободные окна, зелёные — занятые. Изменить график: написать Алисе, например «в пятницу не работаю».</p><div class="bk-list">' + sch + "</div></div>" : "") +
-        '<div class="panel"><h2>Ближайшие записи через Алису</h2>' +
+        '<div class="panel"><h2>Ближайшие записи</h2>' +
         (upcoming.length ? '<div class="bk-list">' + upcoming.map(function(b){
           return '<div class="bk"><b>' + escapeHtml(b.slotTs ? fmtTs(b.slotTs) : b.slotText) + "</b> — " + escapeHtml(b.clientName + (b.username ? " @" + b.username : "")) +
             (b.format ? " · " + escapeHtml(b.format) : "") + (b.paymentType && b.paymentType !== "не указано" ? " · " + escapeHtml(b.paymentType) + (b.packageNo ? " " + b.packageNo + "/4" : "") : "") +
+            (b.source === "valeria" ? ' <span class="badge muted">записала Валерия</span>' : "") +
             (b.notified ? "" : ' <span class="badge warn">Валерии ещё не отправлено</span>') + "</div>";
         }).join("") + "</div>" : '<p class="muted" style="margin:6px 0 0">Предстоящих записей нет.</p>') + "</div>";
+      var rem = dialogsCache.reminders || [];
+      html += '<div class="panel"><h2>Напоминания и запланированные сообщения</h2>' +
+        (rem.length ? '<div class="bk-list">' + rem.map(function(r){
+          return '<div class="bk"><b>' + escapeHtml(fmtTs(r.dueTs)) + "</b> — " +
+            (r.kind === "send" ? "Алиса напишет " + escapeHtml(r.name + (r.username ? " @" + r.username : "")) + ": «" + escapeHtml(r.text) + "»" : "напомнить Валерии: " + escapeHtml(r.text)) + "</div>";
+        }).join("") + "</div>" : '<p class="muted" style="margin:6px 0 0">Ничего не запланировано.</p>') + "</div>";
       html += '<div class="count">Диалогов: ' + (dialogsCache.dialogs || []).length + (q ? ", найдено: " + list.length : "") + "</div>";
       if (dialogsCache.valeria && !q) {
         html += '<div class="entry"><div class="entry-head" data-id="valeria" onclick="openDialog(this.dataset.id)"><div><div class="entry-name">Валерия ↔ Алиса</div>' +
-          '<div class="entry-meta">служебная переписка: задачи и правила для Алисы · сообщений: ' + dialogsCache.valeria.count + "</div></div>" +
+          '<div class="entry-meta">переписка Валерии с Алисой: поручения, вопросы клиентов, отчёты · сообщений: ' + dialogsCache.valeria.count + "</div></div>" +
           '<div class="entry-date">' + fmtTs(dialogsCache.valeria.lastTs) + "</div></div></div>";
       }
       html += list.map(function(d){
